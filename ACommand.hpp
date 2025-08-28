@@ -2,12 +2,12 @@
 
 #include <iostream>
 
-class Command
+class ACommand
 {
 	protected:
 		std::string _name;
 
 	public:
-		Command();
-		virtual ~Command();
+		ACommand();
+		virtual ~ACommand();
 };
