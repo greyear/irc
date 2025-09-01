@@ -1,13 +1,5 @@
 #pragma once
 
-
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-
 #define ERR_NONICKNAMEGIVEN 431
 /*
 ":No nickname given"
@@ -58,14 +50,3 @@ So the maximum nickname length is 9 characters.*/
 /*
 If you send wrong pass OR you send nick/user BEFORE the pass
 */
-
-
-
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 
-#define 

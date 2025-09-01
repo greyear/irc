@@ -1,12 +1,13 @@
 #include "Server.hpp"
 
-Server::Server(int portNumber, std::string const &password): _epollFd(-1), _fd(-1), _pass(""), _port(0)
+Server::Server(int portNumber, std::string const &password): _port(0), _pass(""), _fd(-1), _epollFd(-1)  
 {
     //validate port 
     //validate password
-     _port = portNumber;
-    _pass = password;
 
+    _port = portNumber;
+    _pass = password;
+     std::cout << "_port: " << _port << std::endl;
 }
 
 Server::~Server()

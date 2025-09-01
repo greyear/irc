@@ -1,0 +1,31 @@
+NAME = ircserv
+
+CC = c++
+FLAGS = -Wall -Wextra -Werror
+
+OBJDIR = obj
+
+HEADERS = Client.hpp Server.hpp Channel.hpp
+SOURCES = main.cpp Client.cpp Server.cpp Channel.cpp
+OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
+
+all: $(NAME)
+
+$(NAME): $(OBJECTS)
+	$(CC) $(FLAGS) -o $(NAME) $(OBJECTS)
+
+$(OBJDIR)/%.o: %.cpp  $(HEADERS) | $(OBJDIR)
+	$(CC) $(FLAGS) -c $< -o $@
+
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
+
+clean:
+	rm -rf $(OBJDIR)
+
+fclean: clean
+	rm -f $(NAME)
+
+re: fclean all
+
+.PHONY: all clean fclean re
