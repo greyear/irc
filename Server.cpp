@@ -41,12 +41,18 @@ void Server::addToEpoll(int fd, uint32_t events)
         throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
 }
 
+void Server::removeFromEpoll(int fd)
+{
+	if (epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr) == -1)
+        throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
+}
+
 void	Server::createSocket()
 {
     _epollFd = epoll_create1(EPOLL_CLOEXEC);
-    if (_epollFd == -1) {
+    if (_epollFd == -1)
         throw std::system_error(errno, std::system_category(), "epoll_create1");
-    }
+    
     _fd = socket(AF_INET, SOCK_STREAM, 0);
     if (_fd == -1)
         throw std::system_error(errno, std::system_category(), "socket");
@@ -92,6 +98,15 @@ void Server::acceptNewClient()
     std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
+void Server::disconnectClient(int client_fd)
+{
+		//std::cout << "Client disconnected: " << _clients[client_fd] << " (fd=" << client_fd << ")" << std::endl;
+		
+	removeFromEpoll(client_fd);
+	close(client_fd);
+	_clients.erase(client_fd);
+}
+
 void Server::start() 
 {
     struct epoll_event events[MAX_EVENTS];
@@ -105,19 +120,24 @@ void Server::start()
             throw std::system_error(errno, std::system_category(), "epoll_wait");
         //Todo: signals 
         // Process all ready file descriptors
-        for (int i = 0; i < nfds; i++) {
+        for (int i = 0; i < nfds; i++)
+        {
             int fd = events[i].data.fd;
             
             if (fd == _fd)
             {
                 // New connection
                 acceptNewClient();
-            } else if (events[i].events & EPOLLIN) {
+            }
+            else if (events[i].events & EPOLLIN)
+            {
                 // Data available to read from client
                 //handle Client data
-            } else if (events[i].events & (EPOLLHUP | EPOLLERR)) {
+            }
+            else if (events[i].events & (EPOLLHUP | EPOLLERR))
+            {
                 // Client disconnected or error
-                // disconnect client
+               disconnectClient(fd);
             }
         }
     }

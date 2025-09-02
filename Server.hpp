@@ -23,10 +23,12 @@ class Server
 	public:
 		Server(int portNumber, std::string const &password);
 		void	createSocket();
-		void setNonBlocking(int fd);
-		void addToEpoll(int fd, uint32_t events);
-		void acceptNewClient();
-		void start();
+		void	start();
+		void	setNonBlocking(int fd);
+		void	addToEpoll(int fd, uint32_t events);
+		void	removeFromEpoll(int fd);
+		void	acceptNewClient();
+		void	disconnectClient(int client_fd);
 		~Server();
 
 };
