@@ -1,0 +1,23 @@
+#pragma once
+
+#include <iostream>
+#include <string>
+#include <map>
+#include <memory>
+#include "ACommand.hpp"
+#include "PassCmd.hpp"
+#include "UserCmd.hpp"
+#include "NickCmd.hpp"
+#include "PingCmd.hpp"
+
+class CmdList
+{
+	private:
+		std::map<std::string, std::unique_ptr<ACommand>> _commands;
+		
+	public:
+		CmdList();
+		~CmdList();
+		
+		ACommand* getCommand(const std::string& name);
+};

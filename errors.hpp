@@ -1,5 +1,10 @@
 #pragma once
 
+#define ERR_NOSUCHNICK        "401" // "<nickname> :No such nick/channel"
+#define ERR_NOSUCHCHANNEL     "403" // "<channel name> :No such channel"
+#define ERR_CANNOTSENDTOCHAN  "404" // "<channel name> :Cannot send to channel"
+#define ERR_UNKNOWNCOMMAND "421" // "<command> :Unknown command"
+
 #define ERR_NONICKNAMEGIVEN 431
 /*
 ":No nickname given"
@@ -28,6 +33,9 @@ So the maximum nickname length is 9 characters.*/
 - Returned when a NICK message is processed that results in an attempt to change to a currently
  existing nickname.*/
 
+#define ERR_USERNOTINCHANNEL  "441" // "<nick> <channel> :They aren't on that channel"
+#define ERR_NOTONCHANNEL      "442" // "<channel> :You're not on that channel"
+
 #define ERR_NOTREGISTERED 451
 /*
 ":You have not registered"
@@ -42,6 +50,15 @@ So the maximum nickname length is 9 characters.*/
 "<command> :Not enough parameters"
 - Returned to indicate to the client that it didn't supply enough parameters.*/
 
+#define ERR_ALREADYREGISTRED 462
+/*
+":Unauthorized command (already registered)"
+
+         - Returned by the server to any link which tries to
+           change part of the registered details (such as
+           password or user details from second USER message).
+*/
+
 #define ERR_PASSWDMISMATCH 464
 /*
 ":Password incorrect"
@@ -50,3 +67,8 @@ So the maximum nickname length is 9 characters.*/
 /*
 If you send wrong pass OR you send nick/user BEFORE the pass
 */
+
+#define ERR_CHANNELISFULL     "471" // "<channel> :Cannot join channel (+l)"
+#define ERR_INVITEONLYCHAN    "473" // "<channel> :Cannot join channel (+i)"
+#define ERR_BANNEDFROMCHAN    "474" // "<channel> :Cannot join channel (+b)"
+#define ERR_NOPRIVILEGES      "481" // ":Permission Denied- You're not an IRC operator"

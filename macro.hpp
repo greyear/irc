@@ -3,3 +3,5 @@
 #define MAX_EVENTS 128
 #define MAX_QUEUE 128
 #define MAX_CLIENTS 1000
+#define BUFFER_SIZE 1024
+#define MAX_BUFFER_SIZE 4096

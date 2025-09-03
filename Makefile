@@ -5,8 +5,13 @@ FLAGS = -Wall -Wextra -Werror
 
 OBJDIR = obj
 
-HEADERS = Client.hpp Server.hpp Channel.hpp
-SOURCES = main.cpp Client.cpp Server.cpp Channel.cpp
+HEADERS = Client.hpp Server.hpp Channel.hpp ACommand.hpp PassCmd.hpp UserCmd.hpp NickCmd.hpp \
+	PingCmd.hpp \
+	CmdList.hpp errors.hpp macro.hpp
+SOURCES = main.cpp Client.cpp Server.cpp Channel.cpp \
+	ACommand.cpp PassCmd.cpp UserCmd.cpp NickCmd.cpp \
+	PingCmd.cpp \
+	CmdList.cpp errors.cpp macro.cpp
 OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 all: $(NAME)

@@ -2,144 +2,216 @@
 
 Server::Server(int portNumber, std::string const &password): _port(0), _pass(""), _fd(-1), _epollFd(-1)  
 {
-    //validate port 
-    //validate password
+	//validate port 
+	//validate password
 
-    _port = portNumber;
-    _pass = password;
-     std::cout << "_port: " << _port << std::endl;
+	_port = portNumber;
+	_pass = password;
+	 std::cout << "_port: " << _port << std::endl;
 }
 
 Server::~Server()
 {
-    if (_fd != -1)
-    {
-        close(_fd);
-        _fd = -1;
-    }
-    if (_epollFd != -1)
-    {
-        close(_epollFd);
-        _epollFd = -1;
-    }
-    //Todo: close client fds
+	if (_fd != -1)
+	{
+		close(_fd);
+		_fd = -1;
+	}
+	if (_epollFd != -1)
+	{
+		close(_epollFd);
+		_epollFd = -1;
+	}
+	//Todo: close client fds
 }
 
 void Server::setNonBlocking(int fd)
 {
-    int flags = fcntl(fd, F_GETFL, 0);
+	int flags = fcntl(fd, F_GETFL, 0);
 	fcntl(fd, F_SETFL, flags | O_NONBLOCK);
 }
 
 void Server::addToEpoll(int fd, uint32_t events)
 {
-    struct epoll_event ev;
-    ev.events = events;
-    ev.data.fd = fd;
-    
-    if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1)
-        throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
+	struct epoll_event ev;
+	ev.events = events;
+	ev.data.fd = fd;
+	
+	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1)
+		throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
 }
 
 void Server::removeFromEpoll(int fd)
 {
 	if (epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr) == -1)
-        throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
+		throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
 }
 
 void	Server::createSocket()
 {
-    _epollFd = epoll_create1(EPOLL_CLOEXEC);
-    if (_epollFd == -1)
-        throw std::system_error(errno, std::system_category(), "epoll_create1");
-    
-    _fd = socket(AF_INET, SOCK_STREAM, 0);
-    if (_fd == -1)
-        throw std::system_error(errno, std::system_category(), "socket");
+	_epollFd = epoll_create1(EPOLL_CLOEXEC);
+	if (_epollFd == -1)
+		throw std::system_error(errno, std::system_category(), "epoll_create1");
+	
+	_fd = socket(AF_INET, SOCK_STREAM, 0);
+	if (_fd == -1)
+		throw std::system_error(errno, std::system_category(), "socket");
 
 // Set socket options
-    int opt = 1;
-    setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
-    setNonBlocking(_fd);
-    
-    // Bind and listen
-    struct sockaddr_in addr;
-    addr.sin_family = AF_INET;
-    addr.sin_addr.s_addr = INADDR_ANY;
-    addr.sin_port = htons(_port);
+	int opt = 1;
+	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
+	setNonBlocking(_fd);
+	
+	// Bind and listen
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_addr.s_addr = INADDR_ANY;
+	addr.sin_port = htons(_port);
 
-    if (bind(_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
+	if (bind(_fd, (struct sockaddr*)&addr, sizeof(addr)) == -1)
 		throw std::system_error(errno, std::system_category(), "bind");
 		
-    if (listen(_fd, MAX_QUEUE) == -1)
-       throw std::system_error(errno, std::system_category(), "listen");
+	if (listen(_fd, MAX_QUEUE) == -1)
+	   throw std::system_error(errno, std::system_category(), "listen");
 
-    addToEpoll(_fd, EPOLLIN);
-    
-    std::cout << "IRC Server listening on port " << _port << std::endl;
+	addToEpoll(_fd, EPOLLIN);
+	
+	std::cout << "IRC Server listening on port " << _port << std::endl;
 
 }
 
 void Server::acceptNewClient()
 {
-    struct sockaddr_in client_addr;
-    socklen_t addr_len = sizeof(client_addr);
-    
-    int clientFd = accept(_fd, (struct sockaddr*)&client_addr, &addr_len);
-    if (clientFd == -1)
-        throw std::system_error(errno, std::system_category(), "accept");
-    
-    setNonBlocking(clientFd);
-    
-    // Add client to epoll for reading
-    addToEpoll(clientFd, EPOLLIN | EPOLLET); // Edge-triggered mode
-    
-    _clients[clientFd] = std::make_unique<Client>(clientFd);
-    std::cout << "New client connected: fd=" << clientFd << std::endl;
+	struct sockaddr_in client_addr;
+	socklen_t addr_len = sizeof(client_addr);
+	
+	int clientFd = accept(_fd, (struct sockaddr*)&client_addr, &addr_len);
+	if (clientFd == -1)
+		throw std::system_error(errno, std::system_category(), "accept");
+	
+	setNonBlocking(clientFd);
+	
+	// Add client to epoll for reading
+	addToEpoll(clientFd, EPOLLIN | EPOLLET); // Edge-triggered mode
+	
+	_clients[clientFd] = std::make_unique<Client>(clientFd);
+	std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
-void Server::disconnectClient(int client_fd)
+bool	Server::checkRegistrationComplete(Client* client)
 {
-		//std::cout << "Client disconnected: " << _clients[client_fd] << " (fd=" << client_fd << ")" << std::endl;
+	return (client->getHasPass() && client->getHasUser() && client->getHasNick());
+}
+
+void Server::handleClientData(int clientFd)
+{
+	char buffer[BUFFER_SIZE];
+	ssize_t bytes_read;
+	
+	std::map<int, std::unique_ptr<Client>>::iterator it = _clients.find(clientFd);
+	if (it == _clients.end())
+	{
+		std::cerr << "Client not found: " << clientFd << std::endl;
+		return; //TODO: check what if client doesn't exist yet or gets deleted before calling this
+	}
+	Client* client = it->second.get();
+	while ((bytes_read = read(clientFd, buffer, BUFFER_SIZE)) > 0)
+	{
+		client->appendToBuffer(buffer, bytes_read);
 		
-	removeFromEpoll(client_fd);
-	close(client_fd);
-	_clients.erase(client_fd);
+		while (client->hasCompleteMessage())
+		{
+			std::string message = client->extractNextMessage();
+			if (!message.empty())
+				processMessage(clientFd, message);
+		}
+		
+		if (client->isBufferTooLarge())
+		{
+			std::cerr << "Buffer overflow reached: disconnecting client " << clientFd << std::endl; //TODO: change to nick later when we have getters
+			disconnectClient(clientFd); //TODO: check if nothing was allocated
+			return;
+		}
+	}
+	if (bytes_read == 0 || (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK)) {
+		disconnectClient(clientFd);
+	}
+}
+
+void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
+{
+	std::string error = ":server " + errCode + " " + msg + "\r\n";
+	send(clientFd, error.c_str(), error.length(), 0);
+}
+
+void	Server::processMessage(int clientFd, const std::string& message)
+{
+	Client *client = _clients[clientFd].get();
+	if (!client)
+		return ;
+	
+	std::istringstream iss(message);
+	std::string cmdName;
+	iss >> cmdName;
+	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
+
+	std::vector<std::string> params;
+	std::string param;
+	while (iss >> param)
+		params.push_back(param);
+	
+	ACommand* command = _cmdList.getCommand(cmdName);
+	if (!command)
+	{
+		sendError(clientFd, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
+		return ;
+	}
+
+
+}
+
+void Server::disconnectClient(int clientFd)
+{
+		//std::cout << "Client disconnected: " << _clients[clientFd] << " (fd=" << clientFd << ")" << std::endl;
+		
+	removeFromEpoll(clientFd);
+	close(clientFd);
+	_clients.erase(clientFd);
 }
 
 void Server::start() 
 {
-    struct epoll_event events[MAX_EVENTS];
-    
-    while (true)
-    {
-        // Wait for events (-1 means wait indefinitely)
-        int nfds = epoll_wait(_epollFd, events, MAX_EVENTS, -1);
-        
-        if (nfds == -1)
-            throw std::system_error(errno, std::system_category(), "epoll_wait");
-        //Todo: signals 
-        // Process all ready file descriptors
-        for (int i = 0; i < nfds; i++)
-        {
-            int fd = events[i].data.fd;
-            
-            if (fd == _fd)
-            {
-                // New connection
-                acceptNewClient();
-            }
-            else if (events[i].events & EPOLLIN)
-            {
-                // Data available to read from client
-                //handle Client data
-            }
-            else if (events[i].events & (EPOLLHUP | EPOLLERR))
-            {
-                // Client disconnected or error
-               disconnectClient(fd);
-            }
-        }
-    }
+	struct epoll_event events[MAX_EVENTS];
+	
+	while (true)
+	{
+		// Wait for events (-1 means wait indefinitely)
+		int nfds = epoll_wait(_epollFd, events, MAX_EVENTS, -1);
+		
+		if (nfds == -1)
+			throw std::system_error(errno, std::system_category(), "epoll_wait");
+		//Todo: signals 
+		// Process all ready file descriptors
+		for (int i = 0; i < nfds; i++)
+		{
+			int fd = events[i].data.fd;
+			
+			if (fd == _fd)
+			{
+				// New connection
+				acceptNewClient();
+			}
+			else if (events[i].events & EPOLLIN)
+			{
+				// Data available to read from client
+				//handle Client data
+			}
+			else if (events[i].events & (EPOLLHUP | EPOLLERR))
+			{
+				// Client disconnected or error
+			   disconnectClient(fd);
+			}
+		}
+	}
 }
 	
