@@ -36,7 +36,7 @@ So the maximum nickname length is 9 characters.*/
 #define ERR_USERNOTINCHANNEL  "441" // "<nick> <channel> :They aren't on that channel"
 #define ERR_NOTONCHANNEL      "442" // "<channel> :You're not on that channel"
 
-#define ERR_NOTREGISTERED 451
+#define ERR_NOTREGISTERED "451"
 /*
 ":You have not registered"
 - Returned to indicate that the client MUST be registered before the server will allow it
@@ -45,18 +45,18 @@ So the maximum nickname length is 9 characters.*/
  You tried the command BEFORE you've registered!
  */
 
-#define ERR_NEEDMOREPARAMS 461
+#define ERR_NEEDMOREPARAMS "461"
 /*
 "<command> :Not enough parameters"
 - Returned to indicate to the client that it didn't supply enough parameters.*/
 
-#define ERR_ALREADYREGISTRED 462
+#define ERR_ALREADYREGISTRED "462"
 /*
-":Unauthorized command (already registered)"
+":You may not reregister"
 
-         - Returned by the server to any link which tries to
-           change part of the registered details (such as
-           password or user details from second USER message).
+- Returned by the server to any link which tries to
+ change part of the registered details (such as
+ password or user details from second USER message).
 */
 
 #define ERR_PASSWDMISMATCH 464

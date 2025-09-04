@@ -10,6 +10,7 @@ int main(int argc, char *argv[])
     }
     try
     {
+        //Todo: validate password and port number
         Server server(std::stoi(argv[1]), argv[2]);
         server.createSocket();
         server.start();

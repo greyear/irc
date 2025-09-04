@@ -3,13 +3,13 @@
 #include <iostream>
 #include "ACommand.hpp"
 
-class PingCmd : public ACommand
+class PrivMsgCmd : public ACommand
 {
 	protected:
 
 	public:
-		PingCmd();
-		virtual ~PingCmd();
+		PrivMsgCmd();
+		virtual ~PrivMsgCmd();
 		bool needsRegistration() const override;
 		void execute(Server* server, Client* client, const std::vector<std::string>& params) override;
 

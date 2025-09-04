@@ -30,13 +30,14 @@ class Server
 		Server(int portNumber, std::string const &password);
 		~Server();
 
+		std::string getPass() const;
+
 		void	createSocket();
 		void	start();
 		void	setNonBlocking(int fd);
 		void	addToEpoll(int fd, uint32_t events);
 		void	removeFromEpoll(int fd);
 		void	acceptNewClient();
-		bool	checkRegistrationComplete(Client* client);
 		void	handleClientData(int clientFd);
 		void	sendError(int clientFd, const std::string& errCode, const std::string& msg);
 		void	processMessage(int clientFd, const std::string& message);

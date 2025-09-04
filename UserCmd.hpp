@@ -6,9 +6,11 @@
 class UserCmd : public ACommand
 {
 	protected:
-		std::string _name;
 
 	public:
 		UserCmd();
 		virtual ~UserCmd();
+		bool needsRegistration() const override;
+		void execute(Server* server, Client* client, const std::vector<std::string>& params) override;
+
 };

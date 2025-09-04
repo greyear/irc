@@ -25,6 +25,9 @@ class Client
 		Client(int fd);
 		~Client();
 
+		int		getFd() const;
+		const std::string&	getNick() const;
+		const std::string&	getUser() const;
 		bool	getHasPass() const;
 		bool	getHasUser() const;
 		bool	getHasNick() const;
@@ -34,6 +37,7 @@ class Client
 		void	setHasUser(bool received);
 		void	setHasNick(bool received);
 		void	setRegistered();
+		bool	checkRegistrationComplete();
 
 		void appendToBuffer(const char* data, size_t length);
 		bool hasCompleteMessage() const;

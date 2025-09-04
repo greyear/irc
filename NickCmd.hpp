@@ -6,9 +6,11 @@
 class NickCmd : public ACommand
 {
 	protected:
-		std::string _name;
 
 	public:
 		NickCmd();
 		virtual ~NickCmd();
+		bool needsRegistration() const override;
+		void execute(Server* server, Client* client, const std::vector<std::string>& params) override;
+
 };

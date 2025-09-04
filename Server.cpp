@@ -25,6 +25,11 @@ Server::~Server()
 	//Todo: close client fds
 }
 
+std::string Server::getPass() const
+{
+    return _pass;
+}
+
 void Server::setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
@@ -98,10 +103,6 @@ void Server::acceptNewClient()
 	std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
-bool	Server::checkRegistrationComplete(Client* client)
-{
-	return (client->getHasPass() && client->getHasUser() && client->getHasNick());
-}
 
 void Server::handleClientData(int clientFd)
 {
@@ -166,8 +167,13 @@ void	Server::processMessage(int clientFd, const std::string& message)
 		sendError(clientFd, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
 		return ;
 	}
-
-
+    
+    if (command->needsRegistration() && !client->checkRegistrationComplete())
+    {
+        sendError(clientFd, ERR_NOTREGISTERED, ":You have not registered");
+        return;
+    }
+    command->execute(this, client, params);
 }
 
 void Server::disconnectClient(int clientFd)

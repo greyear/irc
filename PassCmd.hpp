@@ -6,9 +6,10 @@
 class PassCmd : public ACommand
 {
 	protected:
-		std::string _name;
 
 	public:
 		PassCmd();
 		virtual ~PassCmd();
+		bool needsRegistration() const override;
+		void execute(Server* server, Client* client, const std::vector<std::string>& params) override;
 };

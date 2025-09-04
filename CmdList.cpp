@@ -5,9 +5,8 @@ CmdList::CmdList()
 	_commands["PASS"] = std::make_unique<PassCmd>();
 	_commands["NICK"] = std::make_unique<NickCmd>();
 	_commands["USER"] = std::make_unique<UserCmd>();
-	_commands["PING"] = std::make_unique<UserCmd>();
-	//_commands["PRIVMSG"] = std::make_unique<PrivmsgCommand>();
-	// etc.
+	_commands["PING"] = std::make_unique<PingCmd>();
+	_commands["PRIVMSG"] = std::make_unique<PrivMsgCmd>();
 }
 
 

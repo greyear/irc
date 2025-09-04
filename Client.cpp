@@ -12,6 +12,21 @@ Client::~Client()
     
 }
 
+int	Client::getFd() const
+{
+	return _fd;
+}
+
+const std::string&	Client::getNick() const
+{
+	return _nick;
+}
+
+const std::string&	Client::getUser() const
+{
+	return _user;
+}
+
 bool	Client::getHasPass() const
 {
 	return(_hasPass);
@@ -50,6 +65,11 @@ void	Client::setHasNick(bool received)
 void	Client::setRegistered()
 {
 	_registered = true;
+}
+
+bool	Client::checkRegistrationComplete()
+{
+	return (_hasPass && _hasUser && _hasNick);
 }
 
 void Client::appendToBuffer(const char* data, size_t length)
