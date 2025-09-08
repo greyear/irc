@@ -7,6 +7,7 @@ Server::Server(int portNumber, std::string const &password): _port(0), _pass("")
 
 	_port = portNumber;
 	_pass = password;
+	_serverName = "hive.irc.net";
 	 std::cout << "_port: " << _port << std::endl;
 }
 
@@ -27,7 +28,7 @@ Server::~Server()
 
 std::string Server::getPass() const
 {
-    return _pass;
+	return _pass;
 }
 
 void Server::setNonBlocking(int fd)
@@ -103,6 +104,15 @@ void Server::acceptNewClient()
 	std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
+bool	Server::isNicknameTaken(const std::string& newNick)
+{
+	for (const auto& client : _clients)
+	{
+		if (client.second->getNick() == newNick)
+			return (true);
+	}
+	return (false);
+}
 
 void Server::handleClientData(int clientFd)
 {
@@ -167,13 +177,13 @@ void	Server::processMessage(int clientFd, const std::string& message)
 		sendError(clientFd, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
 		return ;
 	}
-    
-    if (command->needsRegistration() && !client->checkRegistrationComplete())
-    {
-        sendError(clientFd, ERR_NOTREGISTERED, ":You have not registered");
-        return;
-    }
-    command->execute(this, client, params);
+	
+	if (command->needsRegistration() && !client->checkRegistrationComplete())
+	{
+		sendError(clientFd, ERR_NOTREGISTERED, ":You have not registered");
+		return;
+	}
+	command->execute(this, client, params);
 }
 
 void Server::disconnectClient(int clientFd)
@@ -183,6 +193,28 @@ void Server::disconnectClient(int clientFd)
 	removeFromEpoll(clientFd);
 	close(clientFd);
 	_clients.erase(clientFd);
+}
+
+void	Server::sendWelcomeMsg(Client *client)
+{
+	int fd = client->getFd();
+	std::string nick = client->getNick();
+	std::string user = client->getUser();
+
+	std::string msg001 = ":" + _serverName + " 001 " + nick + 
+						 " :Welcome to the Internet Relay Network " + 
+						 nick + "!" + user  + "@" + _serverName + "\r\n";
+	send(fd, msg001.c_str(), msg001.length(), 0);
+	std::string msg002 = ":" + _serverName + " 002 " + nick + 
+						" :Your host is " + _serverName + 
+						", running version 1.0" + "\r\n";
+	send(fd, msg002.c_str(), msg002.length(), 0);
+	std::string msg003 = ":" + _serverName + " 003 " + nick + 
+						" :This server was created today" + "\r\n";
+	send(fd, msg003.c_str(), msg003.length(), 0);
+	std::string msg004 = ":" + _serverName + " 004 " + nick + " " + 
+						_serverName + " 1.0" + " io ntk\r\n";
+	send(fd, msg004.c_str(), msg004.length(), 0);
 }
 
 void Server::start() 

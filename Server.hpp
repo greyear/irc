@@ -22,6 +22,7 @@ class Server
 		int								_port; //?
 		std::string						_pass;
 		int								_fd;
+		std::string						_serverName;
 		std::map<int, std::unique_ptr<Client>> _clients;
 		std::map<std::string, Channel>	_channels;
 		int								_epollFd;
@@ -38,9 +39,11 @@ class Server
 		void	addToEpoll(int fd, uint32_t events);
 		void	removeFromEpoll(int fd);
 		void	acceptNewClient();
+		bool	isNicknameTaken(const std::string& newNick);
 		void	handleClientData(int clientFd);
 		void	sendError(int clientFd, const std::string& errCode, const std::string& msg);
 		void	processMessage(int clientFd, const std::string& message);
 		void	disconnectClient(int clientFd);
+		void	sendWelcomeMsg(Client *client);
 
 };

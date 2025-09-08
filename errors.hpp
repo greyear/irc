@@ -5,7 +5,7 @@
 #define ERR_CANNOTSENDTOCHAN  "404" // "<channel name> :Cannot send to channel"
 #define ERR_UNKNOWNCOMMAND "421" // "<command> :Unknown command"
 
-#define ERR_NONICKNAMEGIVEN 431
+#define ERR_NONICKNAMEGIVEN "431"
 /*
 ":No nickname given"
 - Returned when a nickname parameter expected for a command and isn't found.*/
@@ -27,7 +27,7 @@ The nickname must start with a letter or a special character (it cannot start wi
 After that, you may have up to 8 more characters from the set {letter, digit, special, dash}.
 So the maximum nickname length is 9 characters.*/
 
-#define ERR_NICKNAMEINUSE 433
+#define ERR_NICKNAMEINUSE "433"
 /*
 "<nick> :Nickname is already in use"
 - Returned when a NICK message is processed that results in an attempt to change to a currently

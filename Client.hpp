@@ -33,6 +33,7 @@ class Client
 		bool	getHasNick() const;
 		bool	isRegistered() const;
 
+		void	setNick(const std::string& nick);
 		void	setHasPass(bool received);
 		void	setHasUser(bool received);
 		void	setHasNick(bool received);

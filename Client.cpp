@@ -47,6 +47,11 @@ bool	Client::isRegistered() const
 	return(_registered);
 }
 
+void	Client::setNick(const std::string& nick)
+{
+	_nick = nick;
+}
+
 void	Client::setHasPass(bool received)
 {
 	_hasPass = received;
