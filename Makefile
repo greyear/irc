@@ -10,8 +10,7 @@ HEADERS = Client.hpp Server.hpp Channel.hpp ACommand.hpp PassCmd.hpp UserCmd.hpp
 	CmdList.hpp errors.hpp macro.hpp
 SOURCES = main.cpp Client.cpp Server.cpp Channel.cpp \
 	ACommand.cpp PassCmd.cpp UserCmd.cpp NickCmd.cpp \
-	PingCmd.cpp \
-	CmdList.cpp errors.cpp macro.cpp
+	PingCmd.cpp CmdList.cpp 
 OBJECTS = $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
 
 all: $(NAME)

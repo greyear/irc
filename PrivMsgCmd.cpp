@@ -1,5 +1,3 @@
-#pragma once
-
 #include "PrivMsgCmd.hpp"
 
 PrivMsgCmd::PrivMsgCmd()
@@ -7,7 +5,7 @@ PrivMsgCmd::PrivMsgCmd()
 
 }
 
-virtual PrivMsgCmd::~PrivMsgCmd()
+PrivMsgCmd::~PrivMsgCmd()
 {
 
 }

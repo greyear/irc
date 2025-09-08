@@ -1,5 +1,3 @@
-#pragma once
-
 #include "PingCmd.hpp"
 
 PingCmd::PingCmd()
@@ -7,7 +5,7 @@ PingCmd::PingCmd()
 
 }
 
-virtual PingCmd::~PingCmd()
+PingCmd::~PingCmd()
 {
 
 }

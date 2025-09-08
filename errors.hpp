@@ -59,14 +59,11 @@ So the maximum nickname length is 9 characters.*/
  password or user details from second USER message).
 */
 
-#define ERR_PASSWDMISMATCH 464
+#define ERR_PASSWDMISMATCH "464"
 /*
 ":Password incorrect"
 - Returned to indicate a failed attempt at registering a connection for which a password was
  required and was either not given or incorrect.*/
-/*
-If you send wrong pass OR you send nick/user BEFORE the pass
-*/
 
 #define ERR_CHANNELISFULL     "471" // "<channel> :Cannot join channel (+l)"
 #define ERR_INVITEONLYCHAN    "473" // "<channel> :Cannot join channel (+i)"

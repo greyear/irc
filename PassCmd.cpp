@@ -1,6 +1,7 @@
-#pragma once
 
 #include "PassCmd.hpp"
+#include "Client.hpp"
+#include "Server.hpp"
 
 PassCmd::PassCmd()
 {
@@ -27,6 +28,15 @@ void PassCmd::execute(Server* server, Client* client, const std::vector<std::str
 
 	if (params.empty())
 	{
-		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, "PASS :Not enough parameters"); 
+		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, "PASS :Not enough parameters");
+		return;
 	}
+	
+	if (params[0] != server->getPass())
+	{
+		server->sendError(client->getFd(), ERR_PASSWDMISMATCH, ":Password incorrect");
+		server->disconnectClient(client->getFd());
+		return;
+	}
+	client->setHasPass(true);
 }

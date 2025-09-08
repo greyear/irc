@@ -1,8 +1,10 @@
 #pragma once
 
 #include <iostream>
-#include "Server.hpp"
-#include "Client.hpp"
+#include <vector>
+
+class Server;
+class Client;
 
 class ACommand
 {

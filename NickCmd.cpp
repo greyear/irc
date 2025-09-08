@@ -1,5 +1,3 @@
-#pragma once
-
 #include "NickCmd.hpp"
 
 NickCmd::NickCmd()

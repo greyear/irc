@@ -1,5 +1,3 @@
-#pragma once
-
 #include "UserCmd.hpp"
 
 UserCmd::UserCmd()
@@ -7,7 +5,7 @@ UserCmd::UserCmd()
 
 }
 
-virtual UserCmd::~UserCmd()
+UserCmd::~UserCmd()
 {
 
 }

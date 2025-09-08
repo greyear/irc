@@ -9,6 +9,7 @@
 #include "UserCmd.hpp"
 #include "NickCmd.hpp"
 #include "PingCmd.hpp"
+#include "PrivMsgCmd.hpp"
 
 class CmdList
 {
