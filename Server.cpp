@@ -1,6 +1,6 @@
 #include "Server.hpp"
 
-Server::Server(int portNumber, std::string const &password): _port(0), _pass(""), _fd(-1), _epollFd(-1)  
+Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)  
 {
 	//validate port 
 	//validate password
@@ -129,10 +129,10 @@ void Server::handleClientData(int clientFd)
 	while ((bytes_read = read(clientFd, buffer, BUFFER_SIZE)) > 0)
 	{
 		client->appendToBuffer(buffer, bytes_read);
-		
 		while (client->hasCompleteMessage())
 		{
 			std::string message = client->extractNextMessage();
+			//std::cout << message <<  " :  The message" << std::endl;
 			if (!message.empty())
 				processMessage(clientFd, message);
 		}
@@ -152,6 +152,7 @@ void Server::handleClientData(int clientFd)
 void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
 {
 	std::string error = ":server " + errCode + " " + msg + "\r\n";
+	std::cout << " sending ERROR from server to " << clientFd << std::endl;
 	send(clientFd, error.c_str(), error.length(), 0);
 }
 
@@ -165,6 +166,7 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	std::string cmdName;
 	iss >> cmdName;
 	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
+	//std::cout << "cmdNAME in processMsg : "<< cmdName << std::endl;
 
 	std::vector<std::string> params;
 	std::string param;
@@ -233,7 +235,7 @@ void Server::start()
 		for (int i = 0; i < nfds; i++)
 		{
 			int fd = events[i].data.fd;
-			
+			//std::cout << " Ready fd here in the loop" << fd <<  std::endl;
 			if (fd == _fd)
 			{
 				// New connection
@@ -241,8 +243,9 @@ void Server::start()
 			}
 			else if (events[i].events & EPOLLIN)
 			{
+				//std::cout << " got an EPOLLIN flag in the loop ??" << std::endl;
 				// Data available to read from client
-				//handle Client data
+				handleClientData(fd);
 			}
 			else if (events[i].events & (EPOLLHUP | EPOLLERR))
 			{
