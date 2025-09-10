@@ -15,12 +15,13 @@ class Client
 		int					_fd;
 		std::string			_nick;
 		std::string			_user;
+		std::string			_realName;
 		std::string			_messageBuffer;
 		std::set<Channel>	_channels;
 		bool				_hasPass;
 		bool				_hasUser;
 		bool				_hasNick;
-		bool				_registered;
+		bool				_registered; //TODO: check if we need that
 	public:
 		Client(int fd);
 		~Client();
@@ -28,12 +29,15 @@ class Client
 		int		getFd() const;
 		const std::string&	getNick() const;
 		const std::string&	getUser() const;
+		const std::string&	getRealName() const;
 		bool	getHasPass() const;
 		bool	getHasUser() const;
 		bool	getHasNick() const;
 		bool	isRegistered() const;
 
 		void	setNick(const std::string& nick);
+		void	setUser(const std::string& user);
+		void	setRealName(const std::string& realName);
 		void	setHasPass(bool received);
 		void	setHasUser(bool received);
 		void	setHasNick(bool received);

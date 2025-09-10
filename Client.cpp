@@ -3,8 +3,8 @@
 Client::Client(int fd):
 _fd(fd), _nick(""), _user(""), _hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
 {
-	std::cout << "_fd: "<< _fd << std::endl;
-	std::cout << "_registered: " << _registered << std::endl; //TODO clean
+	//std::cout << "_fd: "<< _fd << std::endl;
+	//std::cout << "_registered: " << _registered << std::endl; //TODO clean
 }
 
 Client::~Client()
@@ -25,6 +25,11 @@ const std::string&	Client::getNick() const
 const std::string&	Client::getUser() const
 {
 	return _user;
+}
+
+const std::string&	Client::getRealName() const
+{
+	return _realName;
 }
 
 bool	Client::getHasPass() const
@@ -52,8 +57,19 @@ void	Client::setNick(const std::string& nick)
 	_nick = nick;
 }
 
+void	Client::setUser(const std::string& user)
+{
+	_user = user;
+}
+
+void	Client::setRealName(const std::string& realName)
+{
+	_realName = realName;
+}
+
 void	Client::setHasPass(bool received)
 {
+	//std::cout << "setHasPass" << std::endl;
 	_hasPass = received;
 }
 

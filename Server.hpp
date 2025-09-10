@@ -45,5 +45,6 @@ class Server
 		void	processMessage(int clientFd, const std::string& message);
 		void	disconnectClient(int clientFd);
 		void	sendWelcomeMsg(Client *client);
+		void	sendInfo(Client *client, const std::string& msg);
 
 };

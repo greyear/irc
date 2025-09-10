@@ -14,5 +14,5 @@ class ACommand
 		ACommand();
 		virtual ~ACommand();
 		virtual bool needsRegistration() const = 0;
-		virtual void execute(Server* server, Client* client, const std::vector<std::string>& params) = 0;
+		virtual void execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) = 0;
 };

@@ -17,9 +17,10 @@ bool PingCmd::needsRegistration() const
 	return true;
 }
 
-void PingCmd::execute(Server* server, Client* client, const std::vector<std::string>& params)
+void PingCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
 	(void)server;
 	(void)client;
 	(void)params;
+	(void)multiWordParam;
 }

@@ -144,16 +144,21 @@ void Server::handleClientData(int clientFd)
 			return;
 		}
 	}
-	if (bytes_read == 0 || (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK)) {
-		disconnectClient(clientFd);
+	if (bytes_read == 0 || (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK))
+	{
+		//std::cout << "Another try to disconnect from handle" << std::endl;
+		if (_clients.find(clientFd) != _clients.end())	
+			disconnectClient(clientFd);
 	}
 }
 
 void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
 {
 	std::string error = ":server " + errCode + " " + msg + "\r\n";
-	std::cout << " sending ERROR from server to " << clientFd << std::endl;
+	//std::cout << " sending ERROR from server to " << clientFd << std::endl;
+	//std::cout << "before send" << std::endl; 
 	send(clientFd, error.c_str(), error.length(), 0);
+	//std::cout << "after send" << std::endl; 
 }
 
 void	Server::processMessage(int clientFd, const std::string& message)
@@ -170,9 +175,21 @@ void	Server::processMessage(int clientFd, const std::string& message)
 
 	std::vector<std::string> params;
 	std::string param;
-	while (iss >> param)
+	while (iss >> param && param[0] != ':')
 		params.push_back(param);
 	
+	std::string multiWordParam;
+	if (!param.empty() && param[0] == ':')
+	{
+		multiWordParam = param.substr(1);
+		std::string additionalWords;
+		std::getline(iss, additionalWords);
+		if (!additionalWords.empty())
+		{
+			multiWordParam += additionalWords;
+		}
+	}
+
 	ACommand* command = _cmdList.getCommand(cmdName);
 	if (!command)
 	{
@@ -185,16 +202,19 @@ void	Server::processMessage(int clientFd, const std::string& message)
 		sendError(clientFd, ERR_NOTREGISTERED, ":You have not registered");
 		return;
 	}
-	command->execute(this, client, params);
+	//std::cout << "before calling exec "<< cmdName << std::endl;
+	command->execute(this, client, params, multiWordParam);
 }
 
 void Server::disconnectClient(int clientFd)
 {
 		//std::cout << "Client disconnected: " << _clients[clientFd] << " (fd=" << clientFd << ")" << std::endl;
-		
 	removeFromEpoll(clientFd);
+	//std::cout << "after removing from epoll" << std::endl;
 	close(clientFd);
+	//std::cout << "after closing" << std::endl;
 	_clients.erase(clientFd);
+	//std::cout << "after erasing" << std::endl;
 }
 
 void	Server::sendWelcomeMsg(Client *client)
@@ -219,6 +239,11 @@ void	Server::sendWelcomeMsg(Client *client)
 	send(fd, msg004.c_str(), msg004.length(), 0);
 }
 
+void	Server::sendInfo(Client *client, const std::string& msg)
+{
+	send(client->getFd(), msg.c_str(), msg.length(), 0);
+}
+
 void Server::start() 
 {
 	struct epoll_event events[MAX_EVENTS];
@@ -238,7 +263,7 @@ void Server::start()
 			//std::cout << " Ready fd here in the loop" << fd <<  std::endl;
 			if (fd == _fd)
 			{
-				// New connection
+				//std::cout << " trying to accept again ??" << std::endl;
 				acceptNewClient();
 			}
 			else if (events[i].events & EPOLLIN)
@@ -256,3 +281,9 @@ void Server::start()
 	}
 }
 	
+
+//USER eetu 0 * : anya eetu something 
+//realname: " anya eetu something"
+
+//USER eetu 0 * :anya eetu something 
+//realname: "anya eetu something"
