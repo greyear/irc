@@ -3,9 +3,10 @@
 
 bool isPortValid(char *portNumber)
 {
-	std::regex	pattern = "^[0-9]{1,5}$";
-	std::string	portStr = portNumber;
+	std::regex	pattern("^[0-9]{1,5}$");
 	bool		res;
+
+	std::string	portStr = portNumber;
 	res = std::regex_match(portStr, pattern);
 	if (!res)
 		return (false);
@@ -17,6 +18,7 @@ bool isPortValid(char *portNumber)
 
 bool	isPassValid(const std::string& pass)
 {
-	std::regex pattern = "^[^\x00-\x1F]{1,64}$";
+	std::regex pattern("^[^\\x00-\\x1F]{1,64}$");
+
 	return (std::regex_match(pass, pattern));
 }

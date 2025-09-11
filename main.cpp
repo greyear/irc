@@ -1,7 +1,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-bool isPortValid(char *portNumber);
+bool	isPortValid(char *portNumber);
 bool	isPassValid(const std::string& pass);
 
 int main(int argc, char *argv[])
@@ -11,12 +11,12 @@ int main(int argc, char *argv[])
         std::cerr  << "Usage: " << argv[0] << " <port> <password>" << std::endl;
         return 1;
     }
-    if (isPortValid(argv[1]))
+    if (!isPortValid(argv[1]))
     {
         std::cerr  << "Port is not valid" << std::endl;
         return 1;
     }
-    if (isPassValid(argv[2]))
+    if (!isPassValid(argv[2]))
     {
         std::cerr  << "Password is not valid" << std::endl;
         return 1;

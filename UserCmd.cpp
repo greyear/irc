@@ -9,7 +9,7 @@
 } */
 
 UserCmd::UserCmd(): _userNamePattern("^[A-Za-z0-9\\-_[\\]\\{\\}\\|^]{1,9}$"),
-    _realNamePattern("^[\\x00-\\x1F]{1,512}$")
+    _realNamePattern("^[^\\x00-\\x1F]{1,512}$")
 {
 
 }
