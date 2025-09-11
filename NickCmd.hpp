@@ -2,15 +2,18 @@
 
 #include <iostream>
 #include "ACommand.hpp"
+#include <regex>
 
 class NickCmd : public ACommand
 {
+	private:
+		std::regex _pattern;
 	protected:
 
 	public:
 		NickCmd();
 		virtual ~NickCmd();
 		bool needsRegistration() const override;
+		bool isNickValid(const std::string& nick);
 		void execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
-
 };

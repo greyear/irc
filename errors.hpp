@@ -10,7 +10,7 @@
 ":No nickname given"
 - Returned when a nickname parameter expected for a command and isn't found.*/
 
-#define ERR_ERRONEUSNICKNAME 432
+#define ERR_ERRONEUSNICKNAME "432"
 /*
 "<nick> :Erroneous nickname"
 - Returned after receiving a NICK message which contains characters which do not fall in the

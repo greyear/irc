@@ -2,7 +2,7 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-NickCmd::NickCmd()
+NickCmd::NickCmd(): _pattern("^[a-zA-Z\\[\\]\\\\`_^{|}][a-zA-Z0-9\\[\\]\\\\`_^{|}-]{0,8}$")
 {
 
 }
@@ -16,6 +16,11 @@ bool NickCmd::needsRegistration() const
 	return false;
 }
 
+bool NickCmd::isNickValid(const std::string& nick)
+{
+	return std::regex_match(nick, _pattern);
+}
+
 //TODO: validate nickname itself following documentation
 
 void NickCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
@@ -26,18 +31,19 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, ":No nickname given");
 		return;
 	}
-	//TODO: check what error's comes first? in case we have both
-	/*if (!client->getHasPass())
+
+	if (!isNickValid(params[0]))
 	{
-		server->sendError(client->getFd(), ERR_PASSWDMISMATCH, ":Password incorrect");
-		//server->disconnectClient(client->getFd());
+		server->sendError(client->getFd(), ERR_ERRONEUSNICKNAME, params[0] + " :Erroneus nickname");
 		return;
-	}*/
+	}
+
 	if (server->isNicknameTaken(params[0]))
 	{
 		server->sendError(client->getFd(), ERR_NICKNAMEINUSE, params[0] + " :Nickname is already in use");
 		return;
 	}
+
 	if (client->checkRegistrationComplete()) 
 	{
 		std::string msg = client->getNick() + 
@@ -53,3 +59,4 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendWelcomeMsg(client);
 	}
 }
+
