@@ -32,6 +32,7 @@ class Server
 		~Server();
 
 		std::string getPass() const;
+		Client* getClientByNick(const std::string& nick);
 
 		void	createSocket();
 		void	start();

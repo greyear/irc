@@ -31,6 +31,16 @@ std::string Server::getPass() const
 	return _pass;
 }
 
+Client* Server::getClientByNick(const std::string& nick)
+{
+	for (const auto& client : _clients)
+	{
+		if (client.second->getNick() == nick)
+			return (client.second.get());
+	}
+	return nullptr;
+}
+
 void Server::setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
