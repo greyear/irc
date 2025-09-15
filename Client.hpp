@@ -16,7 +16,9 @@ class Client
 		std::string			_nick;
 		std::string			_user;
 		std::string			_realName;
-		std::string			_messageBuffer;
+		std::string			_readBuffer;
+		std::string			_writeBuffer;
+		bool				_hasUnsentData;
 		std::set<Channel>	_channels;
 		bool				_hasPass;
 		bool				_hasUser;
@@ -34,7 +36,7 @@ class Client
 		bool	getHasUser() const;
 		bool	getHasNick() const;
 		bool	isRegistered() const;
-
+		bool	hasUnsentData() const;
 		void	setNick(const std::string& nick);
 		void	setUser(const std::string& user);
 		void	setRealName(const std::string& realName);
@@ -44,9 +46,11 @@ class Client
 		void	setRegistered();
 		bool	checkRegistrationComplete();
 
-		void appendToBuffer(const char* data, size_t length);
+		void appendToReadBuffer(const char* data, size_t length);
+		void appendToWriteBuffer(const std::string& msg);
 		bool hasCompleteMessage() const;
 		std::string extractNextMessage();
 		bool isBufferTooLarge() const;
 		void clearBuffer();
+		int	flushWriteBuffer();
 };

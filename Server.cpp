@@ -1,4 +1,5 @@
 #include "Server.hpp"
+std::string	addCRLF(const std::string& msg);
 
 Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)  
 {
@@ -124,21 +125,21 @@ bool	Server::isNicknameTaken(const std::string& newNick)
 	return (false);
 }
 
-void Server::handleClientData(int clientFd)
+void Server::handleClientRead(int clientFd)
 {
 	char buffer[BUFFER_SIZE];
-	ssize_t bytes_read;
+	ssize_t bytesRecieved;
 	
 	std::map<int, std::unique_ptr<Client>>::iterator it = _clients.find(clientFd);
 	if (it == _clients.end())
 	{
-		std::cerr << "Client not found: " << clientFd << std::endl;
+		std::cerr << "Client not found for read: " << clientFd << std::endl;
 		return; //TODO: check what if client doesn't exist yet or gets deleted before calling this
 	}
 	Client* client = it->second.get();
-	while ((bytes_read = read(clientFd, buffer, BUFFER_SIZE)) > 0)
+	while ((bytesRecieved = recv(clientFd, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0)
 	{
-		client->appendToBuffer(buffer, bytes_read);
+		client->appendToReadBuffer(buffer, bytesRecieved);
 		while (client->hasCompleteMessage())
 		{
 			std::string message = client->extractNextMessage();
@@ -154,12 +155,44 @@ void Server::handleClientData(int clientFd)
 			return;
 		}
 	}
-	if (bytes_read == 0 || (bytes_read == -1 && errno != EAGAIN && errno != EWOULDBLOCK))
+	if (bytesRecieved == 0)
 	{
-		//std::cout << "Another try to disconnect from handle" << std::endl;
-		if (_clients.find(clientFd) != _clients.end())	
-			disconnectClient(clientFd);
+		if (disconnectClient(clientFd))
+			std::cout << "Client " << clientFd << " closed connection" << std::endl;
 	}
+	else if (bytesRecieved == -1)
+	{
+		if (errno == EAGAIN || errno == EWOULDBLOCK)
+			return;
+		else if (errno == ETIMEDOUT)
+        {
+			if (disconnectClient(clientFd))
+				std::cout << "Client " << clientFd << " connection timed out" << std::endl;
+        }
+		else if (errno == ECONNRESET)
+		{
+			if (disconnectClient(clientFd))
+				std::cout << "Client " << clientFd << " connection reset" << std::endl;
+		}
+		else
+		{
+			if (disconnectClient(clientFd))
+				std::cerr << "recv() error on client " << clientFd << std::endl;
+		}
+	}
+}
+
+//TODO: finish later...
+void Server::handleClientWrite(int clientFd)
+{
+	std::map<int, std::unique_ptr<Client>>::iterator it = _clients.find(clientFd);
+	if (it == _clients.end())
+	{
+		std::cerr << "Client not found for write: " << clientFd << std::endl;
+		return;
+	}
+	Client* client = it->second.get();
+
 }
 
 void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
@@ -216,15 +249,16 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	command->execute(this, client, params, multiWordParam);
 }
 
-void Server::disconnectClient(int clientFd)
+bool Server::disconnectClient(int clientFd)
 {
-		//std::cout << "Client disconnected: " << _clients[clientFd] << " (fd=" << clientFd << ")" << std::endl;
-	removeFromEpoll(clientFd);
-	//std::cout << "after removing from epoll" << std::endl;
-	close(clientFd);
-	//std::cout << "after closing" << std::endl;
-	_clients.erase(clientFd);
-	//std::cout << "after erasing" << std::endl;
+	if (_clients.find(clientFd) != _clients.end())
+	{
+		removeFromEpoll(clientFd);
+		close(clientFd);
+		_clients.erase(clientFd);
+		return(true);
+	}
+	return(false);
 }
 
 void	Server::sendWelcomeMsg(Client *client)
@@ -254,6 +288,26 @@ void	Server::sendInfo(Client *client, const std::string& msg)
 	send(client->getFd(), msg.c_str(), msg.length(), 0);
 }
 
+void	Server::sendToClient(Client *client, const std::string& msg)
+{
+	if (!client)
+		return;
+	
+	std::string fullMsg = addCRLF(msg);
+	bool wasEmpty = !client->hasUnsentData();
+
+	client->appendToWriteBuffer(fullMsg);
+
+	/*  TODO: do we need to check if buffer empty?
+		bool hasOutputData() const {
+        return !_outputBuffer.empty();
+    }*/
+	if (wasEmpty && client->hasUnsentData())
+	{
+        addEpollOut(client->getFd()); 
+    }
+}
+
 void Server::start() 
 {
 	struct epoll_event events[MAX_EVENTS];
@@ -280,7 +334,11 @@ void Server::start()
 			{
 				//std::cout << " got an EPOLLIN flag in the loop ??" << std::endl;
 				// Data available to read from client
-				handleClientData(fd);
+				handleClientRead(fd);
+			}
+			else if (events[i].events & EPOLLOUT)
+			{
+				handleClientWrite(fd);
 			}
 			else if (events[i].events & (EPOLLHUP | EPOLLERR))
 			{

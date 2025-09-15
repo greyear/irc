@@ -22,3 +22,12 @@ bool	isPassValid(const std::string& pass)
 
 	return (std::regex_match(pass, pattern));
 }
+
+std::string addCRLF(const std::string& msg)
+{
+    if (msg.size() >= 2 && msg.compare(msg.size() - 2, 2, "\r\n") == 0)
+	{
+        return msg;
+    }
+    return msg + "\r\n";
+}

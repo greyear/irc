@@ -1,7 +1,7 @@
 #include "Client.hpp"
 
 Client::Client(int fd):
-_fd(fd), _nick(""), _user(""), _hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
+_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
 {
 	//std::cout << "_fd: "<< _fd << std::endl;
 	//std::cout << "_registered: " << _registered << std::endl; //TODO clean
@@ -52,6 +52,11 @@ bool	Client::isRegistered() const
 	return(_registered);
 }
 
+bool Client::hasUnsentData() const
+{
+    return _hasUnsentData;
+}
+
 void	Client::setNick(const std::string& nick)
 {
 	_nick = nick;
@@ -93,34 +98,51 @@ bool	Client::checkRegistrationComplete()
 	return (_hasPass && _hasUser && _hasNick);
 }
 
-void Client::appendToBuffer(const char* data, size_t length)
+void Client::appendToReadBuffer(const char* data, size_t length)
 {
-	_messageBuffer.append(data, length);
+	_readBuffer.append(data, length);
+}
+
+void Client::appendToWriteBuffer(const std::string& msg)
+{
+	_writeBuffer += msg;
+	_hasUnsentData = true;
 }
 
 bool Client::hasCompleteMessage() const
 {
-	return _messageBuffer.find("\r\n") != std::string::npos;
+	return _readBuffer.find("\r\n") != std::string::npos;
 }
 
 std::string Client::extractNextMessage()
 {
-	size_t pos = _messageBuffer.find("\r\n");
+	size_t pos = _readBuffer.find("\r\n");
 	if (pos == std::string::npos)
 	{
 		return "";
 	}
-	std::string message = _messageBuffer.substr(0, pos);
-	_messageBuffer.erase(0, pos + 2);
+	std::string message = _readBuffer.substr(0, pos);
+	_readBuffer.erase(0, pos + 2);
 	return message;
 }
 
 bool Client::isBufferTooLarge() const
 {
-	return _messageBuffer.length() > MAX_BUFFER_SIZE;
+	return _readBuffer.length() > MAX_BUFFER_SIZE;
 }
 
 void Client::clearBuffer()
 {
-	_messageBuffer.clear();
+	_readBuffer.clear();
+}
+
+//TODO: finish implementing this 
+int	Client::flushWriteBuffer()
+{
+	if (_writeBuffer.empty())
+	{
+		_hasUnsentData = false;
+		return FLUSH_SUCCESS;
+	}
+	ssize_t sent = send(_fd, _writeBuffer.c_str(), _writeBuffer.size(), MSG_DONTWAIT);
 }
