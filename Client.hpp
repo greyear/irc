@@ -7,7 +7,7 @@
 #include <sys/socket.h>
 #include <unistd.h>
 #include "Channel.hpp"
-#include "macro.hpp"
+#include "macros.hpp"
 
 class Client
 {
@@ -16,9 +16,11 @@ class Client
 		std::string			_nick;
 		std::string			_user;
 		std::string			_realName;
+		std::string			_hostName;
 		std::string			_readBuffer;
 		std::string			_writeBuffer;
 		bool				_hasUnsentData;
+		bool				_isEpollOutActive;
 		std::set<Channel>	_channels;
 		bool				_hasPass;
 		bool				_hasUser;
@@ -32,18 +34,22 @@ class Client
 		const std::string&	getNick() const;
 		const std::string&	getUser() const;
 		const std::string&	getRealName() const;
+		const std::string&	getHostName() const;
 		bool	getHasPass() const;
 		bool	getHasUser() const;
 		bool	getHasNick() const;
 		bool	isRegistered() const;
 		bool	hasUnsentData() const;
+		bool	isEpollOutActive() const;
 		void	setNick(const std::string& nick);
 		void	setUser(const std::string& user);
 		void	setRealName(const std::string& realName);
+		void	setHostName(const std::string& hostName);
 		void	setHasPass(bool received);
 		void	setHasUser(bool received);
 		void	setHasNick(bool received);
 		void	setRegistered();
+		void	setIsEpollOutActive(bool value);
 		bool	checkRegistrationComplete();
 
 		void appendToReadBuffer(const char* data, size_t length);

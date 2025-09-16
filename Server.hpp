@@ -10,11 +10,12 @@
 #include <netinet/in.h>
 #include <sys/epoll.h>
 #include <fcntl.h>
+#include <arpa/inet.h>
 #include <memory>
 #include "Client.hpp"
 #include "CmdList.hpp"
 #include "errors.hpp"
-#include "macro.hpp"
+#include "macros.hpp"
 
 class Server
 {
@@ -32,12 +33,15 @@ class Server
 		~Server();
 
 		std::string getPass() const;
+		const std::string& getServerName() const;
 		Client* getClientByNick(const std::string& nick);
 
 		void	createSocket();
 		void	start();
 		void	setNonBlocking(int fd);
 		void	addToEpoll(int fd, uint32_t events);
+		void	addEpollOut(int fd);
+		void	removeEpollOut(int fd);
 		void	removeFromEpoll(int fd);
 		void	acceptNewClient();
 		bool	isNicknameTaken(const std::string& newNick);

@@ -6,5 +6,6 @@
 #define BUFFER_SIZE 1024
 #define MAX_BUFFER_SIZE 4096
 #define FLUSH_SUCCESS 0
-#define FLUSH_ERROR 1
-#define FLUSH_PARTIAL 2
+#define FLUSH_ERROR -1
+#define FLUSH_PARTIAL 1
+#define FLUSH_LATER 2

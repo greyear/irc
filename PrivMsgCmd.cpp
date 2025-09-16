@@ -70,10 +70,7 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 			continue;
 		}
 		
-		/*std::string privMsg = ":" + client->getFullIdentifier() + " PRIVMSG " + targetNick + " :" + message;
-		server->sendToClient(targetClient, privMsg);*/
+		std::string privMsg = ":" + client->getNick() + "!" + client->getUser() + "@" + client->getHostName() + " PRIVMSG " + targetNick + " :" + message;
+		server->sendToClient(targetClient, privMsg);
 	}
-	
 }
-
-//

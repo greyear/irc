@@ -7,7 +7,7 @@ OBJDIR = obj
 
 HEADERS = Client.hpp Server.hpp Channel.hpp ACommand.hpp PassCmd.hpp UserCmd.hpp NickCmd.hpp \
 	PingCmd.hpp PrivMsgCmd.hpp \
-	CmdList.hpp errors.hpp macro.hpp
+	CmdList.hpp errors.hpp macros.hpp
 SOURCES = main.cpp inputValidation.cpp Client.cpp Server.cpp Channel.cpp \
 	ACommand.cpp PassCmd.cpp UserCmd.cpp NickCmd.cpp \
 	PingCmd.cpp CmdList.cpp PrivMsgCmd.cpp

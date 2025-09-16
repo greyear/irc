@@ -32,6 +32,11 @@ std::string Server::getPass() const
 	return _pass;
 }
 
+const std::string& Server::getServerName() const
+{
+	return _serverName;
+}
+
 Client* Server::getClientByNick(const std::string& nick)
 {
 	for (const auto& client : _clients)
@@ -56,6 +61,29 @@ void Server::addToEpoll(int fd, uint32_t events)
 	
 	if (epoll_ctl(_epollFd, EPOLL_CTL_ADD, fd, &ev) == -1)
 		throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
+}
+
+void Server::addEpollOut(int fd)
+{
+	struct epoll_event ev;
+	ev.events = EPOLLIN | EPOLLOUT;
+	ev.data.fd = fd;
+	
+	epoll_ctl(_epollFd, EPOLL_CTL_MOD, fd, &ev);
+	//std::cout << "added epollout" << std::endl;
+}
+
+void Server::removeEpollOut(int fd)
+{
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = fd;
+	
+	epoll_ctl(_epollFd, EPOLL_CTL_MOD, fd, &ev);
+	
+	Client* client = _clients[fd].get();
+	if (client)
+		client->setIsEpollOutActive(false);
 }
 
 void Server::removeFromEpoll(int fd)
@@ -107,11 +135,13 @@ void Server::acceptNewClient()
 		throw std::system_error(errno, std::system_category(), "accept");
 	
 	setNonBlocking(clientFd);
-	
+	std::string ip = inet_ntoa(client_addr.sin_addr);
+
 	// Add client to epoll for reading
 	addToEpoll(clientFd, EPOLLIN | EPOLLET); // Edge-triggered mode
 	
 	_clients[clientFd] = std::make_unique<Client>(clientFd);
+	_clients[clientFd].get()->setHostName(ip);
 	std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
@@ -192,7 +222,22 @@ void Server::handleClientWrite(int clientFd)
 		return;
 	}
 	Client* client = it->second.get();
-
+	//std::cout << "before flushing" << std::endl;
+	int flushRes = client->flushWriteBuffer();
+	if (flushRes == FLUSH_SUCCESS)
+	{
+		removeEpollOut(clientFd);
+		return ;
+	}
+	else if (flushRes == FLUSH_PARTIAL || flushRes == FLUSH_LATER)
+	{
+		return ;
+	}
+	else if (flushRes == FLUSH_ERROR)
+	{
+		if (disconnectClient(clientFd))
+			std::cerr << "send() error on client " << clientFd << std::endl;
+	}
 }
 
 void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
@@ -294,17 +339,18 @@ void	Server::sendToClient(Client *client, const std::string& msg)
 		return;
 	
 	std::string fullMsg = addCRLF(msg);
-	bool wasEmpty = !client->hasUnsentData();
-
-	client->appendToWriteBuffer(fullMsg);
+	//std::cout << "fullMsg here:" << fullMsg << std::endl;
+	client->appendToWriteBuffer(fullMsg); //change to full
 
 	/*  TODO: do we need to check if buffer empty?
 		bool hasOutputData() const {
         return !_outputBuffer.empty();
     }*/
-	if (wasEmpty && client->hasUnsentData())
+
+	if (client->hasUnsentData() && !client->isEpollOutActive())
 	{
-        addEpollOut(client->getFd()); 
+        addEpollOut(client->getFd());
+		client->setIsEpollOutActive(true);
     }
 }
 

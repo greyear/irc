@@ -1,7 +1,8 @@
 #include "Client.hpp"
 
 Client::Client(int fd):
-_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
+	_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _isEpollOutActive(false),
+	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
 {
 	//std::cout << "_fd: "<< _fd << std::endl;
 	//std::cout << "_registered: " << _registered << std::endl; //TODO clean
@@ -32,6 +33,11 @@ const std::string&	Client::getRealName() const
 	return _realName;
 }
 
+const std::string&	Client::getHostName() const
+{
+	return _hostName;
+}
+
 bool	Client::getHasPass() const
 {
 	return(_hasPass);
@@ -57,6 +63,11 @@ bool Client::hasUnsentData() const
     return _hasUnsentData;
 }
 
+bool	Client::isEpollOutActive() const
+{
+	return _isEpollOutActive;
+}
+
 void	Client::setNick(const std::string& nick)
 {
 	_nick = nick;
@@ -70,6 +81,11 @@ void	Client::setUser(const std::string& user)
 void	Client::setRealName(const std::string& realName)
 {
 	_realName = realName;
+}
+
+void	Client::setHostName(const std::string& hostName)
+{
+	_hostName = hostName;
 }
 
 void	Client::setHasPass(bool received)
@@ -91,6 +107,11 @@ void	Client::setHasNick(bool received)
 void	Client::setRegistered()
 {
 	_registered = true;
+}
+
+void	Client::setIsEpollOutActive(bool value)
+{
+	_isEpollOutActive = value;
 }
 
 bool	Client::checkRegistrationComplete()
@@ -145,4 +166,17 @@ int	Client::flushWriteBuffer()
 		return FLUSH_SUCCESS;
 	}
 	ssize_t sent = send(_fd, _writeBuffer.c_str(), _writeBuffer.size(), MSG_DONTWAIT);
+	if (sent > 0)
+	{
+		_writeBuffer.erase(0, sent);
+		if (_writeBuffer.empty())
+		{
+			_hasUnsentData = false;
+			return FLUSH_SUCCESS;
+		}
+		return FLUSH_PARTIAL;
+	}
+	else if (sent == 0 || (sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
+		return FLUSH_LATER;
+	return FLUSH_ERROR;
 }
