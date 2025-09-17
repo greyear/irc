@@ -28,19 +28,19 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 	(void)multiWordParam;
 	if (params.empty())
 	{
-		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, ":No nickname given");
+		server->sendError(client, ERR_NEEDMOREPARAMS, ":No nickname given");
 		return;
 	}
 
 	if (!isNickValid(params[0]))
 	{
-		server->sendError(client->getFd(), ERR_ERRONEUSNICKNAME, params[0] + " :Erroneus nickname");
+		server->sendError(client, ERR_ERRONEUSNICKNAME, params[0] + " :Erroneus nickname");
 		return;
 	}
 
 	if (server->isNicknameTaken(params[0]))
 	{
-		server->sendError(client->getFd(), ERR_NICKNAMEINUSE, params[0] + " :Nickname is already in use");
+		server->sendError(client, ERR_NICKNAMEINUSE, params[0] + " :Nickname is already in use");
 		return;
 	}
 
@@ -60,3 +60,4 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 	}
 }
 
+//-!- gupter is now known as guru PrevSender is known as CurSender

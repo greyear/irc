@@ -38,12 +38,12 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 {
 	if (client->checkRegistrationComplete()) 
 	{
-		server->sendError(client->getFd(), ERR_ALREADYREGISTRED, ":You may not reregister");
+		server->sendError(client, ERR_ALREADYREGISTRED, ":You may not reregister");
 		return;
 	}
 	if ((params.size() < 3) || (params.size() == 3 && multiWordParam.empty()))
 	{
-		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, "USER :Not enough parameters");
+		server->sendError(client, ERR_NEEDMOREPARAMS, "USER :Not enough parameters");
 		return;
 	}
 
@@ -57,7 +57,7 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 				badUser = badUser + ' ';
 			badUser = badUser + params[i];
 		}
-		server->sendError(client->getFd(), ERR_ERRONEUSNICKNAME, badUser + " :Erroneus nickname");
+		server->sendError(client, ERR_ERRONEUSNICKNAME, badUser + " :Erroneus nickname");
 		return;
 	}
 
@@ -72,12 +72,12 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 	
 	if (!isUserNameValid(userName))
 	{
-		server->sendError(client->getFd(), ERR_ERRONEUSNICKNAME, userName + " :Erroneus nickname");
+		server->sendError(client, ERR_ERRONEUSNICKNAME, userName + " :Erroneus nickname");
 		return;
 	}
 	if (!isRealNameValid(realName))
 	{
-		server->sendError(client->getFd(), ERR_ERRONEUSNICKNAME, realName + " :Erroneus nickname");
+		server->sendError(client, ERR_ERRONEUSNICKNAME, realName + " :Erroneus nickname");
 		return;
 	}
 

@@ -24,12 +24,12 @@ void PassCmd::execute(Server* server, Client* client, const std::vector<std::str
 	//std::cout << "pass exec called" << std::endl;
 	if (client->getHasPass())
 	{
-        server->sendError(client->getFd(), ERR_ALREADYREGISTRED, ":You may not reregister");
+        server->sendError(client, ERR_ALREADYREGISTRED, ":You may not reregister");
         return;
     }
 	if (params.empty())
 	{
-		server->sendError(client->getFd(), ERR_NEEDMOREPARAMS, "PASS :Not enough parameters");
+		server->sendError(client, ERR_NEEDMOREPARAMS, "PASS :Not enough parameters");
 		return;
 	}
 	
@@ -38,7 +38,7 @@ void PassCmd::execute(Server* server, Client* client, const std::vector<std::str
 	if (params[0] != server->getPass())
 	{
 		//std::cout << "before sendError" << std::endl;
-		server->sendError(client->getFd(), ERR_PASSWDMISMATCH, ":Password incorrect");
+		server->sendError(client, ERR_PASSWDMISMATCH, ":Password incorrect");
 		//std::cout << "before disconnecting" << std::endl; 
 		//server->disconnectClient(client->getFd());
 		return;

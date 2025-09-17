@@ -47,10 +47,10 @@ class Server
 		bool	isNicknameTaken(const std::string& newNick);
 		void	handleClientRead(int clientFd);
 		void	handleClientWrite(int clientFd);
-		void	sendError(int clientFd, const std::string& errCode, const std::string& msg);
 		void	processMessage(int clientFd, const std::string& message);
 		bool	disconnectClient(int clientFd);
 		void	sendWelcomeMsg(Client *client);
+		void	sendError(Client *client, const std::string& errCode, const std::string& msg);
 		void	sendInfo(Client *client, const std::string& msg);
 		void	sendToClient(Client *client, const std::string& msg);
 };

@@ -1,4 +1,5 @@
 #include "Server.hpp"
+
 std::string	addCRLF(const std::string& msg);
 
 Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)  
@@ -240,15 +241,6 @@ void Server::handleClientWrite(int clientFd)
 	}
 }
 
-void	Server::sendError(int clientFd, const std::string& errCode, const std::string& msg)
-{
-	std::string error = ":server " + errCode + " " + msg + "\r\n";
-	//std::cout << " sending ERROR from server to " << clientFd << std::endl;
-	//std::cout << "before send" << std::endl; 
-	send(clientFd, error.c_str(), error.length(), 0);
-	//std::cout << "after send" << std::endl; 
-}
-
 void	Server::processMessage(int clientFd, const std::string& message)
 {
 	Client *client = _clients[clientFd].get();
@@ -281,13 +273,13 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	ACommand* command = _cmdList.getCommand(cmdName);
 	if (!command)
 	{
-		sendError(clientFd, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
+		sendError(client, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
 		return ;
 	}
 	
 	if (command->needsRegistration() && !client->checkRegistrationComplete())
 	{
-		sendError(clientFd, ERR_NOTREGISTERED, ":You have not registered");
+		sendError(client, ERR_NOTREGISTERED, ":You have not registered");
 		return;
 	}
 	//std::cout << "before calling exec "<< cmdName << std::endl;
@@ -308,29 +300,38 @@ bool Server::disconnectClient(int clientFd)
 
 void	Server::sendWelcomeMsg(Client *client)
 {
-	int fd = client->getFd();
 	std::string nick = client->getNick();
 	std::string user = client->getUser();
 
 	std::string msg001 = ":" + _serverName + " 001 " + nick + 
 						 " :Welcome to the Internet Relay Network " + 
 						 nick + "!" + user  + "@" + _serverName + "\r\n";
-	send(fd, msg001.c_str(), msg001.length(), 0);
+	sendToClient(client, msg001);
+	//send(fd, msg001.c_str(), msg001.length(), 0);
 	std::string msg002 = ":" + _serverName + " 002 " + nick + 
 						" :Your host is " + _serverName + 
 						", running version 1.0" + "\r\n";
-	send(fd, msg002.c_str(), msg002.length(), 0);
+	sendToClient(client, msg002);
+	//send(fd, msg002.c_str(), msg002.length(), 0);
 	std::string msg003 = ":" + _serverName + " 003 " + nick + 
 						" :This server was created today" + "\r\n";
-	send(fd, msg003.c_str(), msg003.length(), 0);
+	sendToClient(client, msg003);
+	//send(fd, msg003.c_str(), msg003.length(), 0);
 	std::string msg004 = ":" + _serverName + " 004 " + nick + " " + 
 						_serverName + " 1.0" + " io ntk\r\n";
-	send(fd, msg004.c_str(), msg004.length(), 0);
+	sendToClient(client, msg004);
+	//send(fd, msg004.c_str(), msg004.length(), 0);
+}
+
+void	Server::sendError(Client *client, const std::string& errCode, const std::string& msg)
+{
+	std::string error = ":server " + errCode + " " + msg + "\r\n";
+	sendToClient(client , error);
 }
 
 void	Server::sendInfo(Client *client, const std::string& msg)
 {
-	send(client->getFd(), msg.c_str(), msg.length(), 0);
+	sendToClient(client, msg);
 }
 
 void	Server::sendToClient(Client *client, const std::string& msg)
@@ -339,7 +340,6 @@ void	Server::sendToClient(Client *client, const std::string& msg)
 		return;
 	
 	std::string fullMsg = addCRLF(msg);
-	//std::cout << "fullMsg here:" << fullMsg << std::endl;
 	client->appendToWriteBuffer(fullMsg); //change to full
 
 	/*  TODO: do we need to check if buffer empty?

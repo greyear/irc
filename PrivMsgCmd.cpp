@@ -39,7 +39,7 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 {
 	if (params.empty())
 	{
-		server->sendError(client->getFd(), ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
+		server->sendError(client, ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
 		return;
 	}
 
@@ -50,14 +50,14 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		message = params[1];
 	else
 	{
-		server->sendError(client->getFd(), ERR_NOTEXTTOSEND, " :No text to send");
+		server->sendError(client, ERR_NOTEXTTOSEND, " :No text to send");
 		return;
 	}
 	
 	std::vector<std::string> targets = splitTargets(params[0]);
 	if (targets.empty())
 	{
-		server->sendError(client->getFd(), ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
+		server->sendError(client, ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
 		return;
 	}
 
@@ -66,7 +66,7 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		Client* targetClient = server->getClientByNick(targetNick);
 		if (targetClient == nullptr)
 		{
-			server->sendError(client->getFd(), ERR_NOSUCHNICK, client->getNick() + " :No such nick/channel");
+			server->sendError(client, ERR_NOSUCHNICK, client->getNick() + " :No such nick/channel");
 			continue;
 		}
 		
