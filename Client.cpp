@@ -157,7 +157,6 @@ void Client::clearBuffer()
 	_readBuffer.clear();
 }
 
-//TODO: finish implementing this 
 int	Client::flushWriteBuffer()
 {
 	if (_writeBuffer.empty())
@@ -179,4 +178,9 @@ int	Client::flushWriteBuffer()
 	else if (sent == 0 || (sent == -1 && (errno == EAGAIN || errno == EWOULDBLOCK)))
 		return FLUSH_LATER;
 	return FLUSH_ERROR;
+}
+
+bool Client::isInChannel(const std::string& channelName) const
+{
+	return _channels.find(channelName) != _channels.end();
 }

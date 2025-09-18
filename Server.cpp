@@ -48,6 +48,16 @@ Client* Server::getClientByNick(const std::string& nick)
 	return nullptr;
 }
 
+Channel* Server::getChannelByName(const std::string& name)
+{
+	for (const auto& channel : _channels)
+	{
+		if (channel.second->getName() == name)
+			return (channel.second.get());
+	}
+	return nullptr;
+}
+
 void Server::setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);
@@ -143,7 +153,7 @@ void Server::acceptNewClient()
 	
 	_clients[clientFd] = std::make_unique<Client>(clientFd);
 	_clients[clientFd].get()->setHostName(ip);
-	std::cout << "New client connected: fd=" << clientFd << std::endl;
+	std::cout << "New client connected: fd=" << clientFd << std::endl; //delete!
 }
 
 bool	Server::isNicknameTaken(const std::string& newNick)
@@ -154,6 +164,28 @@ bool	Server::isNicknameTaken(const std::string& newNick)
 			return (true);
 	}
 	return (false);
+}
+
+Channel* Server::createNewChannel(const std::string& name)
+{
+	_channels[name] = std::make_unique<Channel>(name);
+	Channel* channelPtr = _channels[name].get();
+	return channelPtr;
+}
+
+Channel* Server::getOrCreateChannel(const std::string& name)
+{
+	Channel* existing = getChannelByName(name);
+	if (existing)
+		return existing;
+	return createNewChannel(name);
+}
+
+void Server::removeChannel(const std::string& name)
+{
+	auto it = _channels.find(name);
+	if (it != _channels.end())
+		_channels.erase(it);
 }
 
 void Server::handleClientRead(int clientFd)
@@ -213,7 +245,6 @@ void Server::handleClientRead(int clientFd)
 	}
 }
 
-//TODO: finish later...
 void Server::handleClientWrite(int clientFd)
 {
 	std::map<int, std::unique_ptr<Client>>::iterator it = _clients.find(clientFd);
@@ -223,7 +254,6 @@ void Server::handleClientWrite(int clientFd)
 		return;
 	}
 	Client* client = it->second.get();
-	//std::cout << "before flushing" << std::endl;
 	int flushRes = client->flushWriteBuffer();
 	if (flushRes == FLUSH_SUCCESS)
 	{
@@ -251,7 +281,9 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	std::string cmdName;
 	iss >> cmdName;
 	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
-	//std::cout << "cmdNAME in processMsg : "<< cmdName << std::endl;
+
+	if (cmdName == "CAP" || cmdName == "WHO" || cmdName == "MODE") //TODO: remove mode from here!
+		return ;
 
 	std::vector<std::string> params;
 	std::string param;
@@ -276,13 +308,11 @@ void	Server::processMessage(int clientFd, const std::string& message)
 		sendError(client, ERR_UNKNOWNCOMMAND, cmdName + " :Unknown command");
 		return ;
 	}
-	
 	if (command->needsRegistration() && !client->checkRegistrationComplete())
 	{
 		sendError(client, ERR_NOTREGISTERED, ":You have not registered");
 		return;
 	}
-	//std::cout << "before calling exec "<< cmdName << std::endl;
 	command->execute(this, client, params, multiWordParam);
 }
 
@@ -395,9 +425,3 @@ void Server::start()
 	}
 }
 	
-
-//USER eetu 0 * : anya eetu something 
-//realname: " anya eetu something"
-
-//USER eetu 0 * :anya eetu something 
-//realname: "anya eetu something"

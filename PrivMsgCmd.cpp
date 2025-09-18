@@ -2,6 +2,8 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
+std::vector<std::string> splitTargets(const std::string& targets);
+
 PrivMsgCmd::PrivMsgCmd()
 {
 
@@ -17,26 +19,14 @@ bool PrivMsgCmd::needsRegistration() const
 	return true;
 }
 
-std::vector<std::string> splitTargets(const std::string& targets)
-{
-	std::vector<std::string> result;
-	std::stringstream ss(targets);
-	std::string eachTarget;
-	
-	while (std::getline(ss, eachTarget, ',')) //reads from ss to eachTarget till , or the end of ss
-	{
-		//TODO: do we need to handle "nick1,nick2, nick3" as nc does OR parse all 3?
-		eachTarget.erase(0, eachTarget.find_first_not_of(" \t")); //removes leading spaces
-		eachTarget.erase(eachTarget.find_last_not_of(" \t") + 1); //removes following spaces
-		
-		if (!eachTarget.empty())
-			result.push_back(eachTarget);
-	}
-	return result;
-}
-
 void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
+	if (needsRegistration() && !client->checkRegistrationComplete())
+	{
+		server->sendError(client, ERR_NOTREGISTERED, " :You have not registered");
+		return;
+	}
+
 	if (params.empty())
 	{
 		server->sendError(client, ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");

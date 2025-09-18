@@ -4,6 +4,7 @@
 #define ERR_NOSUCHSERVER "402" // "<client> <server name> :No such server"
 #define ERR_NOSUCHCHANNEL "403" // "<channel name> :No such channel"
 #define ERR_CANNOTSENDTOCHAN "404" // "<channel name> :Cannot send to channel"
+#define ERR_TOOMANYCHANNELS "405" //
 #define ERR_NORECIPIENT "411" // "<client> :No recipient given (<command>)"
 #define ERR_NOTEXTTOSEND "412" // ":No text to send"
 #define ERR_UNKNOWNCOMMAND "421" // "<command> :Unknown command"
@@ -12,6 +13,7 @@
 #define ERR_NICKNAMEINUSE "433" // "<nick> :Nickname is already in use"
 #define ERR_USERNOTINCHANNEL "441" // "<nick> <channel> :They aren't on that channel"
 #define ERR_NOTONCHANNEL "442" // "<channel> :You're not on that channel"
+#define ERR_USERONCHANNEL "443" // "<user> <channel> :is already on channel"
 #define ERR_NOTREGISTERED "451" // ":You have not registered"
 #define ERR_NEEDMOREPARAMS "461" // "<command> :Not enough parameters"
 #define ERR_ALREADYREGISTRED "462" // ":You may not reregister"
@@ -19,4 +21,8 @@
 #define ERR_CHANNELISFULL "471" // "<channel> :Cannot join channel (+l)"
 #define ERR_INVITEONLYCHAN "473" // "<channel> :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN "474" // "<channel> :Cannot join channel (+b)"
+#define ERR_BADCHANMASK "476" // " <channel> :Bad Channel Mask"
+#define ERR_CHANNELISFULL "471" //
+#define ERR_INVITEONLYCHAN "473" //
+#define ERR_BADCHANNELKEY "475" //
 #define ERR_NOPRIVILEGES "481" // ":Permission Denied- You're not an IRC operator"

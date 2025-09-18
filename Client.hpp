@@ -21,7 +21,7 @@ class Client
 		std::string			_writeBuffer;
 		bool				_hasUnsentData;
 		bool				_isEpollOutActive;
-		std::set<Channel>	_channels;
+		std::set<std::string>	_channels;
 		bool				_hasPass;
 		bool				_hasUser;
 		bool				_hasNick;
@@ -59,4 +59,6 @@ class Client
 		bool isBufferTooLarge() const;
 		void clearBuffer();
 		int	flushWriteBuffer();
+
+		bool isInChannel(const std::string& channelName) const;
 };

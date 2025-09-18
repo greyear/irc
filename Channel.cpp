@@ -1,6 +1,7 @@
 #include "Channel.hpp"
 
-Channel::Channel(std::string name, std::string owner): _name(name), _owner(owner)
+Channel::Channel(const std::string& name)
+	: _name(name), _inviteOnly(false), _topicRestricted(false), _passRequired(false), _hasLimit(false), _limit(0)
 {
 
 }
@@ -8,4 +9,14 @@ Channel::Channel(std::string name, std::string owner): _name(name), _owner(owner
 Channel::~Channel()
 {
 
+}
+
+const std::string& Channel::getName()
+{
+	return (_name);
+}
+
+bool Channel::isEmpty()
+{
+	return (_members.empty());
 }
