@@ -10,6 +10,7 @@ class Channel
 		std::string				_topic;
 		std::set<std::string>	_members;
 		std::set<std::string>	_operators;
+		std::set<std::string>	_invitedUsers;
 		bool					_inviteOnly;
 		bool					_topicRestricted;
 		bool					_passRequired;
@@ -21,5 +22,7 @@ class Channel
 		~Channel();
 
 		const std::string&		getName();
-		bool	isEmpty();
+		bool					getInviteOnly();
+		bool					isEmpty();
+
 };

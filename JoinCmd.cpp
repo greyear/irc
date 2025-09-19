@@ -63,8 +63,8 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			continue ;
 		}
 		Channel* channel = server->getOrCreateChannel(channelName);
-		
-		//chech if user's already in the channel
+		if (channel->getInviteOnly() && //invite list)
+
 		//check if channel's invite only and !channel->isInvited(client->getNick())
 		//channel has user limit and it's full
 		//channel requires key and wrong/no key provided

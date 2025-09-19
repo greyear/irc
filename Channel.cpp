@@ -16,6 +16,11 @@ const std::string& Channel::getName()
 	return (_name);
 }
 
+bool Channel::getInviteOnly()
+{
+	return (_inviteOnly);
+}
+
 bool Channel::isEmpty()
 {
 	return (_members.empty());
