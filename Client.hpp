@@ -26,10 +26,12 @@ class Client
 		bool				_hasUser;
 		bool				_hasNick;
 		bool				_registered; //TODO: check if we need that
+		int					_channelLimit;
 	public:
 		Client(int fd);
 		~Client();
 
+		//getters
 		int		getFd() const;
 		const std::string&	getNick() const;
 		const std::string&	getUser() const;
@@ -38,6 +40,9 @@ class Client
 		bool	getHasPass() const;
 		bool	getHasUser() const;
 		bool	getHasNick() const;
+		int		getChannelLimit() const;
+		const std::set<std::string>&	getChannels() const;
+
 		bool	isRegistered() const;
 		bool	hasUnsentData() const;
 		bool	isEpollOutActive() const;
@@ -61,4 +66,5 @@ class Client
 		int	flushWriteBuffer();
 
 		bool isInChannel(const std::string& channelName) const;
+		void	addChannel(const std::string& name);
 };

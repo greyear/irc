@@ -17,4 +17,5 @@ class JoinCmd : public ACommand
 		bool needsRegistration() const override;
 		bool isChannelNameValid(const std::string& channelName);
 		void execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
+		void	joinChannel(Client* client, Channel* channel);
 };

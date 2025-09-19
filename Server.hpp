@@ -34,8 +34,8 @@ class Server
 
 		std::string getPass() const;
 		const std::string& getServerName() const;
-		Client* getClientByNick(const std::string& nick);
-		Channel* getChannelByName(const std::string& name);
+		Client* getClientByNick(const std::string& nick) const;
+		Channel* getChannelByName(const std::string& name) const;
 
 		void	createSocket();
 		void	start();

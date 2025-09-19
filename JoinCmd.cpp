@@ -63,19 +63,65 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			continue ;
 		}
 		Channel* channel = server->getOrCreateChannel(channelName);
-		if (channel->getInviteOnly() && //invite list)
-
-		//check if channel's invite only and !channel->isInvited(client->getNick())
-		//channel has user limit and it's full
-		//channel requires key and wrong/no key provided
-		//Too many channels (most servers limit to ~20-100 channels per user)
-		//join
+		if (channel->getInviteOnly() && !channel->isInvited(client->getNick()))
+		{
+			server->sendError(client, ERR_INVITEONLYCHAN, channelName + " :Cannot join channel (+i)");
+			continue ;
+		}
+		if (channel->getHasLimit() && channel->.size() == channel->getLimit())
+		{
+			server->sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
+			continue ;
+		}
+		if (channel->getPassRequired() && key != channel->getChannelPass())
+		{
+			server->sendError(client, ERR_BADCHANNELKEY, channelName + " :Cannot join channel (+k)");
+			continue ;
+		}
+		if (client->getChannelLimit() == client->getChannels().size())
+		{
+			server->sendError(client, ERR_TOOMANYCHANNELS, channelName + " :You have joined too many channels");
+			break ;
+		}
+		joinChannel(client, channel);
 	}
-		
 }
 
-/*
-modes
-keys
+void	JoinCmd::joinChannel(Client* client, Channel* channel)
+{
+	channel->addMember(client->getNick());
+	client->addChannel(channel->getName());
+	if(channel->getMembers().size() == 1)
+		channel->addOperator(client->getNick());
+}
 
-*/
+
+
+void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName)
+{
+    // 1. Send JOIN message to all channel members (including the joiner)
+    std::string joinMsg = ":" + client->getNick() + "!" + client->getUser() + "@" + client->getHostName() 
+                         + " JOIN :" + channelName + "\r\n";
+    
+    for (const std::string& memberNick : channel->getMembers())
+	{
+        Client* member = server->getClientByNick(memberNick);
+        if (member)
+		{
+            server->sendToClient(member, joinMsg);
+        }
+    }
+    
+/*     // 2. Send channel topic (if exists)
+    if (!channel->getTopic().empty())
+	{
+        server->sendReply(client, RPL_TOPIC, channelName + " :" + channel->getTopic());
+    } 
+	else
+	{
+        server->sendReply(client, RPL_NOTOPIC, channelName + " :No topic is set");
+    }
+    
+    // 3. Send names list
+    sendNamesList(server, client, channel, channelName); */
+}

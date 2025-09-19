@@ -3,7 +3,7 @@
 Channel::Channel(const std::string& name)
 	: _name(name), _inviteOnly(false), _topicRestricted(false), _passRequired(false), _hasLimit(false), _limit(0)
 {
-
+	std::cout << _topicRestricted << std::endl;
 }
 
 Channel::~Channel()
@@ -11,17 +11,62 @@ Channel::~Channel()
 
 }
 
-const std::string& Channel::getName()
+const std::string& Channel::getName() const
 {
 	return (_name);
 }
 
-bool Channel::getInviteOnly()
+const std::string&	Channel::getTopic() const
+{
+	return _topic;
+}
+
+bool Channel::getInviteOnly() const
 {
 	return (_inviteOnly);
+}
+
+bool	Channel::getHasLimit() const
+{
+	return _hasLimit;
+}
+
+int	Channel::getLimit() const
+{
+	return _limit;
+}
+
+const std::set<std::string>& Channel::getMembers() const
+{
+	return _members;
+}
+
+bool	Channel::getPassRequired() const
+{
+	return _passRequired;
+}
+
+const std::string&	Channel::getChannelPass() const
+{
+	return _channelPass;
 }
 
 bool Channel::isEmpty()
 {
 	return (_members.empty());
+}
+
+bool	Channel::isInvited(const std::string &nick)
+{
+	return _invitedUsers.find(nick) != _invitedUsers.end();
+}
+
+void	Channel::addMember(const std::string &nick)
+{
+	_members.insert(nick);
+}
+
+void	Channel::addOperator(const std::string &nick)
+{
+	_operators.insert(nick);
 }

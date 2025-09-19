@@ -38,7 +38,7 @@ const std::string& Server::getServerName() const
 	return _serverName;
 }
 
-Client* Server::getClientByNick(const std::string& nick)
+Client* Server::getClientByNick(const std::string& nick) const
 {
 	for (const auto& client : _clients)
 	{
@@ -48,7 +48,7 @@ Client* Server::getClientByNick(const std::string& nick)
 	return nullptr;
 }
 
-Channel* Server::getChannelByName(const std::string& name)
+Channel* Server::getChannelByName(const std::string& name) const
 {
 	for (const auto& channel : _channels)
 	{

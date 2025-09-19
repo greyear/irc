@@ -2,7 +2,7 @@
 
 Client::Client(int fd):
 	_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _isEpollOutActive(false),
-	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false)
+	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false), _channelLimit(CHANLIMIT)
 {
 	//std::cout << "_fd: "<< _fd << std::endl;
 	//std::cout << "_registered: " << _registered << std::endl; //TODO clean
@@ -51,6 +51,16 @@ bool	Client::getHasUser() const
 bool	Client::getHasNick() const
 {
 	return(_hasNick);
+}
+
+int	Client::getChannelLimit() const
+{
+	return(_channelLimit);
+}
+
+const std::set<std::string>&	Client::getChannels() const
+{
+	return (_channels);
 }
 
 bool	Client::isRegistered() const
@@ -183,4 +193,9 @@ int	Client::flushWriteBuffer()
 bool Client::isInChannel(const std::string& channelName) const
 {
 	return _channels.find(channelName) != _channels.end();
+}
+
+void	Client::addChannel(const std::string& name)
+{
+	_channels.insert(name);
 }

@@ -4,7 +4,7 @@
 #define ERR_NOSUCHSERVER "402" // "<client> <server name> :No such server"
 #define ERR_NOSUCHCHANNEL "403" // "<channel name> :No such channel"
 #define ERR_CANNOTSENDTOCHAN "404" // "<channel name> :Cannot send to channel"
-#define ERR_TOOMANYCHANNELS "405" //
+#define ERR_TOOMANYCHANNELS "405" // "<channel> :You have joined too many channels"
 #define ERR_NORECIPIENT "411" // "<client> :No recipient given (<command>)"
 #define ERR_NOTEXTTOSEND "412" // ":No text to send"
 #define ERR_UNKNOWNCOMMAND "421" // "<command> :Unknown command"
@@ -22,7 +22,7 @@
 #define ERR_INVITEONLYCHAN "473" // "<channel> :Cannot join channel (+i)"
 #define ERR_BANNEDFROMCHAN "474" // "<channel> :Cannot join channel (+b)"
 #define ERR_BADCHANMASK "476" // " <channel> :Bad Channel Mask"
-#define ERR_CHANNELISFULL "471" //
-#define ERR_INVITEONLYCHAN "473" //
-#define ERR_BADCHANNELKEY "475" //
+#define ERR_CHANNELISFULL "471" // "<channel> :Cannot join channel (+l)"
+#define ERR_INVITEONLYCHAN "473" // "<channel> :Cannot join channel (+i)"
+#define ERR_BADCHANNELKEY "475" // "<channel> :Cannot join channel (+k)"
 #define ERR_NOPRIVILEGES "481" // ":Permission Denied- You're not an IRC operator"

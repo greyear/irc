@@ -21,8 +21,16 @@ class Channel
 		Channel(const std::string& name);
 		~Channel();
 
-		const std::string&		getName();
-		bool					getInviteOnly();
-		bool					isEmpty();
-
+		const std::string&				getName() const;
+		const std::string&				getTopic() const;
+		bool							getInviteOnly() const;
+		bool							getHasLimit() const;
+		int								getLimit() const;
+		const std::set<std::string>&	getMembers() const;
+		bool							getPassRequired() const;
+		const std::string&				getChannelPass() const;
+		bool							isEmpty();
+		bool							isInvited(const std::string &nick);
+		void							addMember(const std::string &nick);
+		void							addOperator(const std::string &nick);
 };

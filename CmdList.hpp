@@ -20,5 +20,5 @@ class CmdList
 		CmdList();
 		~CmdList();
 		
-		ACommand* getCommand(const std::string& name);
+		ACommand* getCommand(const std::string& name) const;
 };

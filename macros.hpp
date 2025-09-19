@@ -9,3 +9,4 @@
 #define FLUSH_ERROR -1
 #define FLUSH_PARTIAL 1
 #define FLUSH_LATER 2
+#define	CHANNEL_LIMIT 42
