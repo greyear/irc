@@ -16,7 +16,7 @@ class Channel
 		bool					_passRequired;
 		std::string				_channelPass;
 		bool					_hasLimit;
-		int						_limit;
+		uint						_limit;
 	public:
 		Channel(const std::string& name);
 		~Channel();
@@ -25,12 +25,15 @@ class Channel
 		const std::string&				getTopic() const;
 		bool							getInviteOnly() const;
 		bool							getHasLimit() const;
-		int								getLimit() const;
+		uint							getLimit() const;
 		const std::set<std::string>&	getMembers() const;
 		bool							getPassRequired() const;
 		const std::string&				getChannelPass() const;
 		bool							isEmpty();
+		bool							isOperator(const std::string &nick);
 		bool							isInvited(const std::string &nick);
 		void							addMember(const std::string &nick);
 		void							addOperator(const std::string &nick);
+		void							removeMember(const std::string &nick);
+		void							removeOperator(const std::string &nick);
 };

@@ -31,7 +31,7 @@ bool	Channel::getHasLimit() const
 	return _hasLimit;
 }
 
-int	Channel::getLimit() const
+uint	Channel::getLimit() const
 {
 	return _limit;
 }
@@ -56,6 +56,11 @@ bool Channel::isEmpty()
 	return (_members.empty());
 }
 
+bool	Channel::isOperator(const std::string &nick)
+{
+	return _operators.find(nick) != _operators.end();
+}
+
 bool	Channel::isInvited(const std::string &nick)
 {
 	return _invitedUsers.find(nick) != _invitedUsers.end();
@@ -69,4 +74,13 @@ void	Channel::addMember(const std::string &nick)
 void	Channel::addOperator(const std::string &nick)
 {
 	_operators.insert(nick);
+}
+void	Channel::removeMember(const std::string &nick)
+{
+	_members.erase(nick);
+}
+
+void	Channel::removeOperator(const std::string &nick)
+{
+	_operators.erase(nick);
 }

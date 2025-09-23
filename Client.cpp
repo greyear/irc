@@ -2,7 +2,7 @@
 
 Client::Client(int fd):
 	_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _isEpollOutActive(false),
-	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false), _channelLimit(CHANLIMIT)
+	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false), _channelLimit(CHANNEL_LIMIT)
 {
 	//std::cout << "_fd: "<< _fd << std::endl;
 	//std::cout << "_registered: " << _registered << std::endl; //TODO clean
@@ -53,7 +53,7 @@ bool	Client::getHasNick() const
 	return(_hasNick);
 }
 
-int	Client::getChannelLimit() const
+uint	Client::getChannelLimit() const
 {
 	return(_channelLimit);
 }
@@ -61,6 +61,11 @@ int	Client::getChannelLimit() const
 const std::set<std::string>&	Client::getChannels() const
 {
 	return (_channels);
+}
+
+std::string Client::getFullIdentifier() const
+{
+	return (_nick + "!" + _user + "@" + _hostName);
 }
 
 bool	Client::isRegistered() const
@@ -198,4 +203,9 @@ bool Client::isInChannel(const std::string& channelName) const
 void	Client::addChannel(const std::string& name)
 {
 	_channels.insert(name);
+}
+
+void	Client::leaveChannel(const std::string& name)
+{
+	_channels.erase(name);
 }

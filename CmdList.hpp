@@ -10,6 +10,7 @@
 #include "NickCmd.hpp"
 #include "PingCmd.hpp"
 #include "PrivMsgCmd.hpp"
+#include "JoinCmd.hpp"
 
 class CmdList
 {

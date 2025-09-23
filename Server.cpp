@@ -335,11 +335,11 @@ void	Server::sendWelcomeMsg(Client *client)
 
 	std::string msg001 = ":" + _serverName + " 001 " + nick + 
 						 " :Welcome to the Internet Relay Network " + 
-						 nick + "!" + user  + "@" + _serverName + "\r\n";
+						 client->getFullIdentifier() + "\r\n";
 	sendToClient(client, msg001);
 	//send(fd, msg001.c_str(), msg001.length(), 0);
 	std::string msg002 = ":" + _serverName + " 002 " + nick + 
-						" :Your host is " + _serverName + 
+						" :Your host is " + client->getHostName() + 
 						", running version 1.0" + "\r\n";
 	sendToClient(client, msg002);
 	//send(fd, msg002.c_str(), msg002.length(), 0);
@@ -347,8 +347,8 @@ void	Server::sendWelcomeMsg(Client *client)
 						" :This server was created today" + "\r\n";
 	sendToClient(client, msg003);
 	//send(fd, msg003.c_str(), msg003.length(), 0);
-	std::string msg004 = ":" + _serverName + " 004 " + nick + " " + 
-						_serverName + " 1.0" + " io ntk\r\n";
+	std::string msg004 = ":" + _serverName + " 004 " + nick + " " +
+						client->getHostName() + " 1.0" + " io ntk\r\n";
 	sendToClient(client, msg004);
 	//send(fd, msg004.c_str(), msg004.length(), 0);
 }

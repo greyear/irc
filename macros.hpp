@@ -10,3 +10,8 @@
 #define FLUSH_PARTIAL 1
 #define FLUSH_LATER 2
 #define	CHANNEL_LIMIT 42
+
+#define RPL_NOTOPIC "331"
+#define RPL_TOPIC "332"
+#define RPL_NAMREPLY "353"
+#define RPL_ENDOFNAMES "366"

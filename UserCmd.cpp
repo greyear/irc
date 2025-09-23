@@ -55,7 +55,6 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 		return;
 	}
 
-
 	std::string userName; //TODO: recheck about 0 and *
 	userName = params[0];
 	std::string realName;

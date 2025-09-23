@@ -26,6 +26,7 @@ bool JoinCmd::isChannelNameValid(const std::string& channelName)
 
 void JoinCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
+	(void)multiWordParam;
 	if (needsRegistration() && !client->checkRegistrationComplete())
 	{
 		server->sendError(client, ERR_NOTREGISTERED, " :You have not registered");
@@ -59,7 +60,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 		}
 		if (client->isInChannel(channelName))
 		{
-			server->sendError(client, ERR_USERONCHANNEL, client->getNick() + channelName + " :is already on channel");
+			server->sendError(client, ERR_USERONCHANNEL, channelName + " :is already on channel");
 			continue ;
 		}
 		Channel* channel = server->getOrCreateChannel(channelName);
@@ -68,7 +69,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			server->sendError(client, ERR_INVITEONLYCHAN, channelName + " :Cannot join channel (+i)");
 			continue ;
 		}
-		if (channel->getHasLimit() && channel->.size() == channel->getLimit())
+		if (channel->getHasLimit() && channel->getMembers().size() == channel->getLimit())
 		{
 			server->sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
 			continue ;
@@ -84,6 +85,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			break ;
 		}
 		joinChannel(client, channel);
+		sendJoinConfirmation(server, client, channel, channel->getName());
 	}
 }
 
@@ -95,33 +97,47 @@ void	JoinCmd::joinChannel(Client* client, Channel* channel)
 		channel->addOperator(client->getNick());
 }
 
-
-
 void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName)
 {
-    // 1. Send JOIN message to all channel members (including the joiner)
-    std::string joinMsg = ":" + client->getNick() + "!" + client->getUser() + "@" + client->getHostName() 
-                         + " JOIN :" + channelName + "\r\n";
-    
-    for (const std::string& memberNick : channel->getMembers())
+	std::string joinMsg = ":" + client->getFullIdentifier() + " JOIN " + channelName + "\r\n";
+	
+	for (const std::string& memberNick : channel->getMembers())
 	{
-        Client* member = server->getClientByNick(memberNick);
-        if (member)
-		{
-            server->sendToClient(member, joinMsg);
-        }
-    }
-    
-/*     // 2. Send channel topic (if exists)
-    if (!channel->getTopic().empty())
+		Client* member = server->getClientByNick(memberNick);
+		if (member)
+			server->sendToClient(member, joinMsg);
+	}
+
+	if (!channel->getTopic().empty())
 	{
-        server->sendReply(client, RPL_TOPIC, channelName + " :" + channel->getTopic());
-    } 
+		std::string topicMsg = ":" + server->getServerName() + " " + RPL_TOPIC + " " + client->getNick() + " " + channelName + " :" + channel->getTopic();
+		server->sendToClient(client, topicMsg);
+	} 
 	else
 	{
-        server->sendReply(client, RPL_NOTOPIC, channelName + " :No topic is set");
-    }
-    
-    // 3. Send names list
-    sendNamesList(server, client, channel, channelName); */
+		std::string topicMsg = ":" + server->getServerName() + " " + RPL_NOTOPIC + " " + client->getNick() + " " + channelName + " :No topic is set";
+		server->sendToClient(client, topicMsg);
+	}
+
+	sendMembersList(server, client, channel, channelName);
+}
+
+void JoinCmd::sendMembersList(Server* server, Client* client, Channel* channel, const std::string& channelName)
+{
+	std::string list;
+	bool firstMember = true;
+	for (const std::string& memberNick : channel->getMembers())
+	{
+		if (!firstMember)
+			list += " ";
+		firstMember = false;
+
+		if (channel->isOperator(memberNick))
+			list += "@";
+		list += memberNick;
+	}
+	std::string listMsg = ":" + server->getServerName() + " " + RPL_NAMREPLY + " " + client->getNick() + " = " + channelName + " :" + list;
+	server->sendToClient(client, listMsg);
+	std::string listEndMsg = ":" + server->getServerName() + " " + RPL_ENDOFNAMES + " " + client->getNick() + " " + channelName + " :End of /NAMES list";
+	server->sendToClient(client, listEndMsg);
 }
