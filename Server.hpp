@@ -49,6 +49,7 @@ class Server
 		void	acceptNewClient();
 		bool	disconnectClient(int clientFd);
 		bool	isNicknameTaken(const std::string& newNick);
+		bool	removeClient(Client *client);
 
 		//channels
 		Channel* createNewChannel(const std::string& name);

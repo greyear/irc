@@ -166,6 +166,32 @@ bool	Server::isNicknameTaken(const std::string& newNick)
 	return (false);
 }
 
+bool	Server::removeClient(Client *client)
+{
+	if (!client)
+		return (false);
+	int clientFd = client->getFd();
+	std::string clientNick = client->getNick();
+
+	for (const std::string& channelName : client->getChannels())
+	{
+		auto channelIt = _channels.find(channelName);
+		if (channelIt != _channels.end())
+		{
+			Channel* channel = channelIt->second.get();
+			
+			channel->removeMember(clientNick);
+			channel->removeOperator(clientNick);
+			channel->removeInvited(clientNick);
+			
+			if (channel->isEmpty())
+			{
+				_channels.erase(channelIt);
+			}
+		}
+	}
+	return disconnectClient(clientFd);
+}
 Channel* Server::createNewChannel(const std::string& name)
 {
 	_channels[name] = std::make_unique<Channel>(name);
@@ -222,6 +248,8 @@ void Server::handleClientRead(int clientFd)
 	{
 		if (disconnectClient(clientFd))
 			std::cout << "Client " << clientFd << " closed connection" << std::endl;
+		else
+			std::cout << "disconnection failed in bytesrecieved = 0 " << std::endl;
 	}
 	else if (bytesRecieved == -1)
 	{
@@ -408,6 +436,7 @@ void Server::start()
 			}
 			else if (events[i].events & EPOLLIN)
 			{
+				std::cout << "In the loop epollin was triggered " << events[i].data.fd << std::endl;
 				//std::cout << " got an EPOLLIN flag in the loop ??" << std::endl;
 				// Data available to read from client
 				handleClientRead(fd);

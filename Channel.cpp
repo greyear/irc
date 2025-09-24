@@ -1,14 +1,12 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name)
-	: _name(name), _inviteOnly(false), _topicRestricted(false), _passRequired(false), _hasLimit(false), _limit(0)
+	: _name(name), _inviteOnly(false), /* _topicRestricted(false), */ _passRequired(false), _hasLimit(false), _limit(0)
 {
-	std::cout << _topicRestricted << std::endl;
 }
 
 Channel::~Channel()
 {
-
 }
 
 const std::string& Channel::getName() const
@@ -83,4 +81,8 @@ void	Channel::removeMember(const std::string &nick)
 void	Channel::removeOperator(const std::string &nick)
 {
 	_operators.erase(nick);
+}
+void	Channel::removeInvited(const std::string &nick)
+{
+	_invitedUsers.erase(nick);
 }

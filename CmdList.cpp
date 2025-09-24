@@ -8,6 +8,8 @@ CmdList::CmdList()
 	_commands["PING"] = std::make_unique<PingCmd>();
 	_commands["PRIVMSG"] = std::make_unique<PrivMsgCmd>();
 	_commands["JOIN"] = std::make_unique<JoinCmd>();
+	_commands["PART"] = std::make_unique<PartCmd>();
+	_commands["QUIT"] = std::make_unique<QuitCmd>();
 }
 
 

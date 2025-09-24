@@ -11,6 +11,8 @@
 #include "PingCmd.hpp"
 #include "PrivMsgCmd.hpp"
 #include "JoinCmd.hpp"
+#include "PartCmd.hpp"
+#include "QuitCmd.hpp"
 
 class CmdList
 {

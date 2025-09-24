@@ -10,9 +10,9 @@ class Channel
 		std::string				_topic;
 		std::set<std::string>	_members;
 		std::set<std::string>	_operators;
-		std::set<std::string>	_invitedUsers;
+		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ? 
 		bool					_inviteOnly;
-		bool					_topicRestricted;
+		//bool					_topicRestricted;
 		bool					_passRequired;
 		std::string				_channelPass;
 		bool					_hasLimit;
@@ -36,4 +36,5 @@ class Channel
 		void							addOperator(const std::string &nick);
 		void							removeMember(const std::string &nick);
 		void							removeOperator(const std::string &nick);
+		void							removeInvited(const std::string &nick);
 };

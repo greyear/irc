@@ -45,13 +45,27 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendError(client, ERR_NEEDMOREPARAMS, " PART :Not enough parameters");
 		return;
 	}
-
-	std::string reason;
-	if (!multiWordParam.empty())
-		reason = multiWordParam;
-	else if (params.size() > 1 && !params[1].empty())
-		reason = params[1];
 	
+    std::string reason;
+    if (params.size() > 1)
+	{
+        for (size_t i = 1; i < params.size(); ++i)
+		{
+            if (i > 1)
+				reason += " ";
+            reason += params[i];
+        }
+        if (!multiWordParam.empty())
+		{
+            if (!reason.empty())
+				reason += " ";
+            reason += multiWordParam;
+        }
+    }
+	else if (!multiWordParam.empty())
+	{
+        reason = multiWordParam;
+    }
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		const std::string& channelName = channels[i];
@@ -68,19 +82,18 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 			continue;
 		}
 
-		if (client->isInChannel(channelName))
+		if (!client->isInChannel(channelName))
 		{
 			server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 			continue ;
 		}
 		
-
-		sendPartConfirmation(server, client, channel, channelName);
-		
+		sendPartConfirmation(server, client, channel, channelName, reason);
+		partChannel(client, channel);
+		if (channel->getMembers().empty())
+			server->removeChannel(channelName);
 	}
 }
-
-//TODO: think about last operator user leaving the channel and all notificatons regarding that!
 
 void	PartCmd::partChannel(Client* client, Channel* channel)
 {
@@ -89,10 +102,12 @@ void	PartCmd::partChannel(Client* client, Channel* channel)
 
 }
 
-void	PartCmd::sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName)
+void	PartCmd::sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName, const std::string& reason)
 {
-	std::string partMsg = ":" + client->getFullIdentifier() + " PART " + channelName + "\r\n";
-	
+	std::string partMsg = ":" + client->getFullIdentifier() + " PART " + channelName;
+	if (!reason.empty())
+		partMsg += " :" + reason;
+	partMsg += "\r\n";
 	for (const std::string& memberNick : channel->getMembers())
 	{
 		Client* member = server->getClientByNick(memberNick);
