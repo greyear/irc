@@ -12,6 +12,8 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <memory>
+#include <signal.h> //check if we need both
+#include <csignal>
 #include "Client.hpp"
 #include "CmdList.hpp"
 #include "errors.hpp"
@@ -28,6 +30,7 @@ class Server
 		std::map<std::string, std::unique_ptr<Channel>> _channels;
 		int								_epollFd;
 		CmdList							_cmdList;
+		static volatile sig_atomic_t	_sigTermination;
 	public:
 		Server(int portNumber, std::string const &password);
 		~Server();
@@ -67,4 +70,7 @@ class Server
 		void	sendError(Client *client, const std::string& errCode, const std::string& msg);
 		void	sendInfo(Client *client, const std::string& msg);
 		void	sendToClient(Client *client, const std::string& msg);
+
+		//signals
+		static void	sigHandler(int sig);
 };

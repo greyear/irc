@@ -74,7 +74,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			server->sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
 			continue ;
 		}
-		if (channel->getPassRequired() && key != channel->getChannelPass())
+		if (channel->getKeyRequired() && key != channel->getChannelKey())
 		{
 			server->sendError(client, ERR_BADCHANNELKEY, channelName + " :Cannot join channel (+k)");
 			continue ;

@@ -1,8 +1,9 @@
 #include "Server.hpp"
 
+volatile sig_atomic_t Server::_sigTermination = 0;
 std::string	addCRLF(const std::string& msg);
 
-Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)  
+Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)
 {
 	//validate port 
 	//validate password
@@ -11,10 +12,13 @@ Server::Server(int portNumber, std::string const &password): _port(0), _pass("pa
 	_pass = password;
 	_serverName = "hive.irc.net";
 	 std::cout << "_port: " << _port << std::endl;
+	signal(SIGINT, sigHandler);
+	signal(SIGTERM, sigHandler);
 }
 
 Server::~Server()
 {
+	std::cout << "we called the destructor" << std::endl;
 	if (_fd != -1)
 	{
 		close(_fd);
@@ -25,7 +29,15 @@ Server::~Server()
 		close(_epollFd);
 		_epollFd = -1;
 	}
-	//Todo: close client fds
+	for (const auto& client : _clients)
+	{
+		if (client.second->getFd() != -1)
+			close(client.second->getFd());
+	}
+	_clients.clear(); //think about that
+	_channels.clear();
+	signal(SIGINT, SIG_DFL);
+	signal(SIGTERM, SIG_DFL);
 }
 
 std::string Server::getPass() const
@@ -100,7 +112,7 @@ void Server::removeEpollOut(int fd)
 void Server::removeFromEpoll(int fd)
 {
 	if (epoll_ctl(_epollFd, EPOLL_CTL_DEL, fd, nullptr) == -1)
-		throw std::system_error(errno, std::system_category(), "epoll_ctl_add");
+		throw std::system_error(errno, std::system_category(), "epoll_ctl_del");
 }
 
 void	Server::createSocket()
@@ -133,7 +145,6 @@ void	Server::createSocket()
 	addToEpoll(_fd, EPOLLIN);
 	
 	std::cout << "IRC Server listening on port " << _port << std::endl;
-
 }
 
 void Server::acceptNewClient()
@@ -310,7 +321,7 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	iss >> cmdName;
 	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
 
-	if (cmdName == "CAP" || cmdName == "WHO" || cmdName == "MODE") //TODO: remove mode from here!
+	if (cmdName == "CAP" || cmdName == "WHO") //TODO: remove mode from here!
 		return ;
 
 	std::vector<std::string> params;
@@ -361,24 +372,20 @@ void	Server::sendWelcomeMsg(Client *client)
 	std::string nick = client->getNick();
 	std::string user = client->getUser();
 
-	std::string msg001 = ":" + _serverName + " 001 " + nick + 
+	std::string msg001 = ":" + _serverName + " " + RPL_WELCOME + " " + nick + 
 						 " :Welcome to the Internet Relay Network " + 
 						 client->getFullIdentifier() + "\r\n";
 	sendToClient(client, msg001);
-	//send(fd, msg001.c_str(), msg001.length(), 0);
-	std::string msg002 = ":" + _serverName + " 002 " + nick + 
+	std::string msg002 = ":" + _serverName + " " + RPL_YOURHOST + " " + nick + 
 						" :Your host is " + client->getHostName() + 
 						", running version 1.0" + "\r\n";
 	sendToClient(client, msg002);
-	//send(fd, msg002.c_str(), msg002.length(), 0);
-	std::string msg003 = ":" + _serverName + " 003 " + nick + 
+	std::string msg003 = ":" + _serverName + " " + RPL_CREATED + " " + nick + 
 						" :This server was created today" + "\r\n";
 	sendToClient(client, msg003);
-	//send(fd, msg003.c_str(), msg003.length(), 0);
-	std::string msg004 = ":" + _serverName + " 004 " + nick + " " +
+	std::string msg004 = ":" + _serverName + " " + RPL_MYINFO + " " + nick + " " +
 						client->getHostName() + " 1.0" + " io ntk\r\n";
 	sendToClient(client, msg004);
-	//send(fd, msg004.c_str(), msg004.length(), 0);
 }
 
 void	Server::sendError(Client *client, const std::string& errCode, const std::string& msg)
@@ -416,29 +423,20 @@ void Server::start()
 {
 	struct epoll_event events[MAX_EVENTS];
 	
-	while (true)
+	while (!_sigTermination)
 	{
-		// Wait for events (-1 means wait indefinitely)
 		int nfds = epoll_wait(_epollFd, events, MAX_EVENTS, -1);
-		
 		if (nfds == -1)
 			throw std::system_error(errno, std::system_category(), "epoll_wait");
-		//Todo: signals 
-		// Process all ready file descriptors
 		for (int i = 0; i < nfds; i++)
 		{
 			int fd = events[i].data.fd;
-			//std::cout << " Ready fd here in the loop" << fd <<  std::endl;
 			if (fd == _fd)
 			{
-				//std::cout << " trying to accept again ??" << std::endl;
 				acceptNewClient();
 			}
 			else if (events[i].events & EPOLLIN)
 			{
-				std::cout << "In the loop epollin was triggered " << events[i].data.fd << std::endl;
-				//std::cout << " got an EPOLLIN flag in the loop ??" << std::endl;
-				// Data available to read from client
 				handleClientRead(fd);
 			}
 			else if (events[i].events & EPOLLOUT)
@@ -447,10 +445,14 @@ void Server::start()
 			}
 			else if (events[i].events & (EPOLLHUP | EPOLLERR))
 			{
-				// Client disconnected or error
 			   disconnectClient(fd);
 			}
 		}
 	}
 }
 	
+void	Server::sigHandler(int sig)
+{
+	if (sig == SIGINT || sig == SIGTERM)
+		_sigTermination = 1;
+}

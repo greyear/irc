@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name)
-	: _name(name), _inviteOnly(false), /* _topicRestricted(false), */ _passRequired(false), _hasLimit(false), _limit(0)
+	: _name(name), _inviteOnly(false), /* _topicRestricted(false), */ _keyRequired(false), _hasLimit(false), _limit(0)
 {
 }
 
@@ -39,14 +39,14 @@ const std::set<std::string>& Channel::getMembers() const
 	return _members;
 }
 
-bool	Channel::getPassRequired() const
+bool	Channel::getKeyRequired() const
 {
-	return _passRequired;
+	return _keyRequired;
 }
 
-const std::string&	Channel::getChannelPass() const
+const std::string&	Channel::getChannelKey() const
 {
-	return _channelPass;
+	return _channelKey;
 }
 
 bool Channel::isEmpty()

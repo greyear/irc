@@ -12,21 +12,21 @@
 class Client
 {
 	private:
-		int					_fd;
-		std::string			_nick;
-		std::string			_user;
-		std::string			_realName;
-		std::string			_hostName;
-		std::string			_readBuffer;
-		std::string			_writeBuffer;
-		bool				_hasUnsentData;
-		bool				_isEpollOutActive;
+		int						_fd;
+		std::string				_nick;
+		std::string				_user;
+		std::string				_realName;
+		std::string				_hostName;
+		std::string				_readBuffer;
+		std::string				_writeBuffer;
+		bool					_hasUnsentData;
+		bool					_isEpollOutActive;
 		std::set<std::string>	_channels;
-		bool				_hasPass;
-		bool				_hasUser;
-		bool				_hasNick;
-		bool				_registered; //TODO: check if we need that
-		uint				_channelLimit;
+		bool					_hasPass;
+		bool					_hasUser;
+		bool					_hasNick;
+		bool					_registered; //TODO: check if we need that
+		uint					_channelLimit;
 	public:
 		Client(int fd);
 		~Client();
