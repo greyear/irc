@@ -39,7 +39,9 @@ class Server
 		const std::string& getServerName() const;
 		Client* getClientByNick(const std::string& nick) const;
 		Channel* getChannelByName(const std::string& name) const;
-
+		const std::map<std::string, std::unique_ptr<Channel>>& getChannels() const;
+		const std::map<int, std::unique_ptr<Client>>& getClients() const;
+		
 		void	createSocket();
 		void	start();
 		void	setNonBlocking(int fd);
