@@ -18,9 +18,10 @@ class InviteCmd : public ACommand
 		bool	needsRegistration() const override;
 		bool	isChannelNameValid(const std::string& channelName);
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
-		void	sendInviteConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName);
-		void	sendMembersList(Server* server, Client* client, Channel* channel, const std::string& channelName);
+		void	sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel);
+
 };
+		
 /*
 /invite nickname #channel
 

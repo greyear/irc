@@ -27,35 +27,28 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 	(void)multiWordParam;
 	if (needsRegistration() && !client->checkRegistrationComplete()) //?
 	{
-		server->sendError(client, ERR_NOTREGISTERED, " :You have not registered");
+		server->sendError(client, ERR_NOTREGISTERED, ":You have not registered");
 		return;
 	}
 	if (params.size() < 2)
 	{
-		server->sendError(client, ERR_NEEDMOREPARAMS, " INVITE :Not enough parameters");
+		server->sendError(client, ERR_NEEDMOREPARAMS, "INVITE :Not enough parameters");
 		return;
 	}
+
 	const std::string& inviteeName = params[0];
-	Client* invitee = server->getClientByNick(inviteeName);
-	if (!invitee)
-	{
-		server->sendError(client, ERR_NOSUCHNICK, inviteeName + " :No such nick/channel");
-		return;
-	}
 	const std::string& channelName = params[1];
 	if (!isChannelNameValid(channelName))
 	{
 		server->sendError(client, ERR_BADCHANMASK, channelName + " :Bad Channel Mask");
 		return;
 	}
-	if (!client->isInChannel(channelName))
+	//do we need to validate inviteeNick by pattern here and in JOIN/KICK too?
+
+	Client* invitee = server->getClientByNick(inviteeName);
+	if (!invitee)
 	{
-		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
-		return;
-	}
-	if (invitee->isInChannel(channelName))
-	{
-		server->sendError(client, ERR_USERONCHANNEL, channelName + " :is already on channel");
+		server->sendError(client, ERR_NOSUCHNICK, inviteeName + " :No such nick/channel");
 		return;
 	}
 	Channel* channel = server->getChannelByName(channelName);
@@ -64,61 +57,32 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
+
+	if (!client->isInChannel(channelName))
+	{
+		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
+		return;
+	}
 	if (channel->getInviteOnly() && !channel->isOperator(client->getNick()))
 	{
 		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
 	}
-	if (channel->isInvited(invitee->getNick()))
+
+	if (invitee->isInChannel(channelName))
 	{
-		server->sendError(client, ERR_USERALREADYINVITED, inviteeName + " " + channelName + " :is already invited");
+		server->sendError(client, ERR_USERONCHANNEL, inviteeName + " " + channelName + " :is already on channel");
 		return;
 	}
-	channel->_invitedUsers.insert(invitee->getNick());
-	sendInviteConfirmation(server, client, channel, channel->getName());
+	channel->addInvited(invitee->getNick());
+	sendInviteConfirmations(server, client, invitee, channel);
 }
 
-void InviteCmd::sendInviteConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName)
+void InviteCmd::sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel) //do we need channelName there in other methods
 {
-	std::string InviteMsg = ":" + client->getFullIdentifier() + " Invite " + channelName + "\r\n";
-	
-	for (const std::string& memberNick : channel->getMembers())
-	{
-		Client* member = server->getClientByNick(memberNick);
-		if (member)
-			server->sendToClient(member, InviteMsg);
-	}
+	std::string msgToInviter = ":" + server->getServerName() + " " + RPL_INVITING + " " + inviter->getNick() + " " + invitee->getNick() + " " + channel->getName() + "\r\n";
+	server->sendToClient(inviter, msgToInviter);
 
-	if (!channel->getTopic().empty())
-	{
-		std::string topicMsg = ":" + server->getServerName() + " " + RPL_TOPIC + " " + client->getNick() + " " + channelName + " :" + channel->getTopic();
-		server->sendToClient(client, topicMsg);
-	} 
-	else
-	{
-		std::string topicMsg = ":" + server->getServerName() + " " + RPL_NOTOPIC + " " + client->getNick() + " " + channelName + " :No topic is set";
-		server->sendToClient(client, topicMsg);
-	}
-
-	sendMembersList(server, client, channel, channelName);
-}
-
-void InviteCmd::sendMembersList(Server* server, Client* client, Channel* channel, const std::string& channelName)
-{
-	std::string list;
-	bool firstMember = true;
-	for (const std::string& memberNick : channel->getMembers())
-	{
-		if (!firstMember)
-			list += " ";
-		firstMember = false;
-
-		if (channel->isOperator(memberNick))
-			list += "@";
-		list += memberNick;
-	}
-	std::string listMsg = ":" + server->getServerName() + " " + RPL_NAMREPLY + " " + client->getNick() + " = " + channelName + " :" + list;
-	server->sendToClient(client, listMsg);
-	std::string listEndMsg = ":" + server->getServerName() + " " + RPL_ENDOFNAMES + " " + client->getNick() + " " + channelName + " :End of /NAMES list";
-	server->sendToClient(client, listEndMsg);
+	std::string msgToInvitee = ":" + inviter->getFullIdentifier() + " INVITE " + invitee->getNick() + " :" + channel->getName() + "\r\n";
+	server->sendToClient(invitee, msgToInvitee);
 }

@@ -203,6 +203,7 @@ bool	Server::removeClient(Client *client)
 	}
 	return disconnectClient(clientFd);
 }
+
 Channel* Server::createNewChannel(const std::string& name)
 {
 	_channels[name] = std::make_unique<Channel>(name);
@@ -396,7 +397,7 @@ void	Server::sendError(Client *client, const std::string& errCode, const std::st
 
 void	Server::sendInfo(Client *client, const std::string& msg)
 {
-	sendToClient(client, msg);
+	sendToClient(client, msg); //why do we even need that?
 }
 
 void	Server::sendToClient(Client *client, const std::string& msg)
@@ -405,7 +406,7 @@ void	Server::sendToClient(Client *client, const std::string& msg)
 		return;
 	
 	std::string fullMsg = addCRLF(msg);
-	client->appendToWriteBuffer(fullMsg); //change to full
+	client->appendToWriteBuffer(fullMsg);
 
 	/*  TODO: do we need to check if buffer empty?
 		bool hasOutputData() const {
