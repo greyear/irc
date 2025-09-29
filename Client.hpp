@@ -40,7 +40,7 @@ class Client
 		bool							getHasPass() const;
 		bool							getHasUser() const;
 		bool							getHasNick() const;
-		uint								getChannelLimit() const;
+		uint							getChannelLimit() const;
 		const std::set<std::string>&	getChannels() const;
 		std::string						getFullIdentifier() const;
 

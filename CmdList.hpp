@@ -13,6 +13,7 @@
 #include "JoinCmd.hpp"
 #include "PartCmd.hpp"
 #include "QuitCmd.hpp"
+#include "InviteCmd.hpp"
 
 class CmdList
 {
