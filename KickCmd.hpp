@@ -9,5 +9,5 @@ class KickCmd : public ACommand
 		KickCmd();
 		virtual ~KickCmd();
 		bool	needsRegistration() const override;
-		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
+		//void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 };

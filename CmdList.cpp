@@ -11,6 +11,7 @@ CmdList::CmdList()
 	_commands["PART"] = std::make_unique<PartCmd>();
 	_commands["QUIT"] = std::make_unique<QuitCmd>();
 	_commands["INVITE"] = std::make_unique<InviteCmd>();
+	_commands["MODE"] = std::make_unique<ModeCmd>();
 }
 
 

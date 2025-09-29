@@ -14,6 +14,7 @@
 #include "PartCmd.hpp"
 #include "QuitCmd.hpp"
 #include "InviteCmd.hpp"
+#include "ModeCmd.hpp"
 
 class CmdList
 {
