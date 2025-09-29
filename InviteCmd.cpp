@@ -25,7 +25,7 @@ bool InviteCmd::isChannelNameValid(const std::string& channelName)
 void InviteCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
 	(void)multiWordParam;
-	if (needsRegistration() && !client->checkRegistrationComplete()) //?
+	if (needsRegistration() && !client->checkRegistrationComplete())
 	{
 		server->sendError(client, ERR_NOTREGISTERED, ":You have not registered");
 		return;
@@ -43,7 +43,6 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 		server->sendError(client, ERR_BADCHANMASK, channelName + " :Bad Channel Mask");
 		return;
 	}
-	//do we need to validate inviteeNick by pattern here and in JOIN/KICK too?
 
 	Client* invitee = server->getClientByNick(inviteeName);
 	if (!invitee)
@@ -74,6 +73,7 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 		server->sendError(client, ERR_USERONCHANNEL, inviteeName + " " + channelName + " :is already on channel");
 		return;
 	}
+
 	channel->addInvited(invitee->getNick());
 	sendInviteConfirmations(server, client, invitee, channel);
 }
