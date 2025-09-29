@@ -391,7 +391,7 @@ void	Server::sendWelcomeMsg(Client *client)
 
 void	Server::sendError(Client *client, const std::string& errCode, const std::string& msg)
 {
-	std::string error = ":server " + errCode + " " + msg + "\r\n";
+	std::string error = ":server " + errCode + " " + msg + "\r\n";  //TODO add client->getNick() + " " + to every error
 	sendToClient(client , error);
 }
 
