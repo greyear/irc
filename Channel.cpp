@@ -59,6 +59,11 @@ bool	Channel::isOperator(const std::string &nick)
 	return _operators.find(nick) != _operators.end();
 }
 
+bool	Channel::isMember(const std::string &nick)
+{
+	return _members.find(nick) != _members.end();
+}
+
 bool	Channel::isInvited(const std::string &nick)
 {
 	return _invitedUsers.find(nick) != _invitedUsers.end();
