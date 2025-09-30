@@ -1,7 +1,7 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name)
-	: _name(name), _inviteOnly(false), /* _topicRestricted(false), */ _keyRequired(false), _hasLimit(false), _limit(0)
+	: _name(name), _inviteOnly(false), _topicRestricted(false), _keyRequired(false), _hasLimit(false), _limit(0)
 {
 }
 
@@ -37,6 +37,11 @@ uint	Channel::getLimit() const
 const std::set<std::string>& Channel::getMembers() const
 {
 	return _members;
+}
+
+bool	Channel::getTopicRestricted() const
+{
+	return _topicRestricted;
 }
 
 bool	Channel::getKeyRequired() const
