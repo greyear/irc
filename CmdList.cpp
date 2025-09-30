@@ -10,6 +10,7 @@ CmdList::CmdList()
 	_commands["JOIN"] = std::make_unique<JoinCmd>();
 	_commands["PART"] = std::make_unique<PartCmd>();
 	_commands["QUIT"] = std::make_unique<QuitCmd>();
+	_commands["KICK"] = std::make_unique<KickCmd>();
 	_commands["INVITE"] = std::make_unique<InviteCmd>();
 }
 

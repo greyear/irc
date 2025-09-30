@@ -70,6 +70,16 @@ Channel* Server::getChannelByName(const std::string& name) const
 	return nullptr;
 }
 
+const std::map<std::string, std::unique_ptr<Channel>>& Server::getChannels() const
+{
+	return _channels;
+}
+
+const std::map<int, std::unique_ptr<Client>>& Server::getClients() const
+{
+	return _clients;
+}
+
 void Server::setNonBlocking(int fd)
 {
 	int flags = fcntl(fd, F_GETFL, 0);

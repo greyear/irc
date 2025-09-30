@@ -27,3 +27,4 @@
 #define ERR_BADCHANNELKEY       "475" // "<channel> :Cannot join channel (+k)"
 #define ERR_NOPRIVILEGES        "481" // ":Permission Denied- You're not an IRC operator"
 #define ERR_CHANOPRIVSNEEDED    "482" // "<channel> :You're not channel operator"
+#define ERR_CANTKICKYOURSELF	"484" //custom error <channel> :You cannot kick yourself from the channel"
