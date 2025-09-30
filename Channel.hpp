@@ -31,6 +31,7 @@ class Channel
 		const std::string&				getChannelKey() const;
 		bool							isEmpty();
 		bool							isOperator(const std::string &nick);
+		bool							isMember(const std::string &nick);
 		bool							isInvited(const std::string &nick);
 		void							addMember(const std::string &nick);
 		void							addOperator(const std::string &nick);

@@ -13,6 +13,7 @@
 #include "JoinCmd.hpp"
 #include "PartCmd.hpp"
 #include "QuitCmd.hpp"
+#include "KickCmd.hpp"
 #include "InviteCmd.hpp"
 #include "ModeCmd.hpp"
 
