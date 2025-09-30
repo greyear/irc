@@ -24,7 +24,7 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendError(client, ERR_NOTREGISTERED, " :You have not registered");
 		return;
 	}
-	if (params.empty() || params.size() < 2) //check to remove .empty
+	if (params.size() < 2)
 	{
 		server->sendError(client, ERR_NEEDMOREPARAMS, " KICK :Not enough parameters");
 		return;
@@ -54,7 +54,6 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		targets = splitTargets(params[1]);
 	for (const std::string &targetNick : targets)
 	{
-		std::cout << " targetNick :" << targetNick << std::endl;
 		if (targetNick == kickerNick)
 		{
 			server->sendError(client, ERR_CANTKICKYOURSELF, client->getNick() + " " + channelName + " :You cannot kick yourself from the channel");
@@ -75,11 +74,22 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		channel->removeMember(targetNick);
 		channel->removeOperator(targetNick); 
 		targetClient->leaveChannel(channelName);
+
 		std::string reason;
+		for (size_t i = 2; i < params.size(); i++)
+		{
+			if (i > 2)
+				reason += " ";
+			reason += params[i];
+		}
 		if (!multiWordParam.empty())
-			reason = multiWordParam;
-		else
-			reason = targetNick;
+		{
+			if (!reason.empty())
+				reason += " ";
+			reason += multiWordParam;
+		}
+		if (reason.empty())
+			reason = targetNick; // TODO: Default = kicker's nick or target's nick ?
 		sendKickConfirmation(server, client, channel, channelName, targetNick, reason);
 	}
 }
@@ -100,16 +110,3 @@ void	KickCmd::sendKickConfirmation(Server* server, Client* client, Channel* chan
 	if (kickedClient)
 		server->sendToClient(kickedClient, kickMessage);
 }
-
-
-	//not enough parameters X
-	//no such channel X
-	//#newchan You're not on that channel X
-	//#newchan You're not a channel operator x
-
-	//newnick00: No such nick/channel
-	//newnick #newchan They aren't on that channel
-
-	// Remove the target user from the channel
-	// Remove from operators if they were one
-	//remove the channel from client's list
