@@ -35,6 +35,7 @@ class Channel
 		bool							isInvited(const std::string &nick);
 		void							addMember(const std::string &nick);
 		void							addOperator(const std::string &nick);
+		void							addInvited(const std::string &nick);
 		void							removeMember(const std::string &nick);
 		void							removeOperator(const std::string &nick);
 		void							removeInvited(const std::string &nick);

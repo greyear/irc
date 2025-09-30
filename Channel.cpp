@@ -78,6 +78,12 @@ void	Channel::addOperator(const std::string &nick)
 {
 	_operators.insert(nick);
 }
+
+void	Channel::addInvited(const std::string &nick)
+{
+	_invitedUsers.insert(nick);
+}
+
 void	Channel::removeMember(const std::string &nick)
 {
 	_members.erase(nick);
