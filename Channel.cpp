@@ -1,7 +1,8 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name)
-	: _name(name), _inviteOnly(false), _topicRestricted(false), _keyRequired(false), _hasLimit(false), _limit(0)
+	: _name(name), _inviteOnly(false), _topicRestricted(false),
+	 _keyRequired(false), _hasLimit(false), _limit(0), _topicTime(0)
 {
 }
 
@@ -52,6 +53,13 @@ bool	Channel::getKeyRequired() const
 const std::string&	Channel::getChannelKey() const
 {
 	return _channelKey;
+}
+
+void	Channel::setTopic(const std::string &topic, const std::string &topicSetter)
+{
+	_topic = topic;
+	_topicSetter = topicSetter;
+	_topicTime = time(NULL);
 }
 
 bool Channel::isEmpty()

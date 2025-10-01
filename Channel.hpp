@@ -10,13 +10,15 @@ class Channel
 		std::string				_topic;
 		std::set<std::string>	_members;
 		std::set<std::string>	_operators; // MODE -o
-		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ? 
+		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ?
 		bool					_inviteOnly; // MODE -i
 		bool					_topicRestricted; // MODE -t
 		bool					_keyRequired; // MODE -k
 		std::string				_channelKey;
 		bool					_hasLimit; // MODE -l
 		uint					_limit;
+		std::string				_topicSetter;
+		time_t					_topicTime;
 	public:
 		Channel(const std::string& name);
 		~Channel();
@@ -30,6 +32,7 @@ class Channel
 		bool							getTopicRestricted() const;
 		bool							getKeyRequired() const;
 		const std::string&				getChannelKey() const;
+		void							setTopic(const std::string &topic, const std::string &topicSetter);
 		bool							isEmpty();
 		bool							isOperator(const std::string &nick);
 		bool							isMember(const std::string &nick);
