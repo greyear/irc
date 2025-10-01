@@ -32,6 +32,8 @@ class Channel
 		bool							getTopicRestricted() const;
 		bool							getKeyRequired() const;
 		const std::string&				getChannelKey() const;
+		const std::string&				getTopicSetter() const;
+		time_t							getTopicTime() const;
 		void							setTopic(const std::string &topic, const std::string &topicSetter);
 		bool							isEmpty();
 		bool							isOperator(const std::string &nick);

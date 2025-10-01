@@ -1,6 +1,8 @@
 #pragma once
 #include <iostream>
 #include "ACommand.hpp"
+#include <sstream>
+
 
 class TopicCmd : public ACommand
 {

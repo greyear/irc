@@ -15,6 +15,7 @@
 #include "QuitCmd.hpp"
 #include "KickCmd.hpp"
 #include "InviteCmd.hpp"
+#include "TopicCmd.hpp"
 
 class CmdList
 {

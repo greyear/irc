@@ -401,7 +401,7 @@ void	Server::sendWelcomeMsg(Client *client)
 
 void	Server::sendError(Client *client, const std::string& errCode, const std::string& msg)
 {
-	std::string error = ":server " + errCode + " " + msg + "\r\n";
+	std::string error = ":" + _serverName + " " + errCode + " " + msg + "\r\n";
 	sendToClient(client , error);
 }
 
