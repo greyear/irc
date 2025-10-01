@@ -34,8 +34,6 @@ MODE #test +ol Alice 5
 one letter takes 1 arg at most!
 MODE #test +oo Alice Pete
 
-
-
 · i: Set/remove Invite-only channel
 (type D: It’s just a boolean flag; no parameter. You toggle it: +i / -i.)
 0 when +, 0 when -

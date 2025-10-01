@@ -39,11 +39,16 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 	}
 	
 	const std::string& channelName = params[0];
-	if (!isChannelNameValid(channelName)) //check mode for nick too!
+	if (!isChannelNameValid(channelName))
 	{
-		std::cout << "DEBUGGING" << std::endl;
-		//
-		server->sendError(client, ERR_BADCHANMASK, client->getNick() + " " + channelName + " :Bad Channel Mask");
+		if (channelName == client->getNick())
+		{
+			//by default we're saying your modes are + and nothing!
+			std::string userModesMsg = ":" + server->getServerName() + " " + RPL_UMODEIS + " " + client->getNick() + " +" + "\r\n";
+			server->sendToClient(client, userModesMsg);
+		}
+		else
+			server->sendError(client, ERR_BADCHANMASK, client->getNick() + " " + channelName + " :Bad Channel Mask");
 		return;
 	}
 	Channel* channel = server->getChannelByName(channelName);
@@ -58,16 +63,16 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendError(client, ERR_NOTONCHANNEL, client->getNick() + " " + channelName + " :You're not on that channel");
 		return;
 	}
-	if (!channel->isOperator(client->getNick())) //check how it works on real things! maybe not right!
-	{
-		server->sendError(client, ERR_CHANOPRIVSNEEDED, client->getNick() + " " + channelName + " :You're not channel operator");
-		return;
-	}
 
 	if (params.size() == 1)
 		executeNoArgs(server, client, channel);
 	else
 	{
+		if (!channel->isOperator(client->getNick())) //check how it works on real things! maybe not right!
+		{
+			server->sendError(client, ERR_CHANOPRIVSNEEDED, client->getNick() + " " + channelName + " :You're not channel operator");
+			return;
+		}
 		const std::string& modestring = params[1];
 		std::vector<std::string> args;
 		if (params.size() > 2)
@@ -82,66 +87,14 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 void	ModeCmd::executeNoArgs(Server* server, Client* client, Channel* channel)
 {
 	std::cout << "executing with no args" << std::endl;
-	(void)server;
-	(void)client;
-	(void)channel;
+
+	std::string modestring = channel->getModestring();
+	std::string modestringMsg = ":" + server->getServerName() + " " + RPL_CHANNELMODEIS + " " + client->getNick() + " " + channel->getName() + " " + modestring + "\r\n";
+	server->sendToClient(client, modestringMsg);
+
+	std::string creationTimeMsg = ":" + server->getServerName() + " " + RPL_CREATIONTIME + " " + client->getNick() + " " + channel->getName() + " " + std::to_string(channel->getCreationTime()) + "\r\n";
+	server->sendToClient(client, creationTimeMsg);
 }
-
-/*void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, const std::string& modestring, std::vector<std::string>& args)
-{
-	std::cout << "executing with some args" << std::endl;
-
-	size_t aIndex = 0;
-	char sign = '+'; //look like in irssi by default is +
-	for (char c : modestring)
-	{
-		if (c == '+' || c == '-') //what if not
-		{
-			sign = c;
-			continue ;
-		}
-		if (sign == '+')
-		{
-			if (c == 'k' || c == 'o' || c == 'l')
-			{
-				if (aIndex < args.size()) //check with no args
-					executeLetter(server, client, channel, c, sign, args[aIndex++]);
-				else
-				{
-					server->sendError(client, ERR_NEEDMOREPARAMS, "MODE :Not enough parameters");
-					return;//?
-				}
-			}
-			else if (c == 'i' || c == 't')
-				executeLetter(server, client, channel, c, sign, "");
-			else
-			{
-				server->sendError(client, ERR_UNKNOWNMODE, std::string(1, c) + " :is unknown mode char to me for " + channel->getName());
-				return;//?
-			}
-		}
-		else //sign == '-'
-		{
-			if (c == 'k' || c == 'o')
-			{
-				if (aIndex < args.size()) //check with no args
-					executeLetter(server, client, channel, c, sign, args[aIndex++]);
-				else
-				{
-					server->sendError(client, ERR_NEEDMOREPARAMS, "MODE :Not enough parameters");
-					return;
-				}
-			}
-			else if (c == 'l' || c == 'i' || c == 't')
-				executeLetter(server, client, channel, c, sign, "");
-			else
-			{
-				server->sendError(client, ERR_UNKNOWNMODE, std::string(1, c) + " :is unknown mode char to me for " + channel->getName());
-				return;//?
-			}
-		}
-	}
-}*/
 
 void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, const std::string& modestring, std::vector<std::string>& args)
 {
@@ -180,7 +133,7 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 			else
 			{
 				server->sendError(client, ERR_NEEDMOREPARAMS, "MODE :Not enough parameters");
-				return;//?
+				return;
 			}
 		}
 
@@ -200,6 +153,7 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 		}
 		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
 		{
+			std::cout << "CHAR IS: " + std::string(1, c) << std::endl;
 			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, c) + " :is unknown mode char to me for " + channel->getName());
 			return false;
 		}
@@ -210,11 +164,42 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 void	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg)
 {
 	std::cout << "executing with args, mode is " << mode << ", sign is " << sign << std::endl;
-	(void)server;
-	(void)client;
-	(void)channel;
-	(void)mode;
-	(void)sign;
+
 	//need to check if arg is empty
-	(void)arg;
+	switch (mode)
+	{
+		case 'o': //check if nick exists
+			if (sign == '+')
+				channel->addOperator(arg);
+			else
+				channel->removeOperator(arg);
+			break ;
+		case 'k':
+			if (sign == '+')
+				channel->setKey(arg);
+			else
+				channel->removeKey();
+			break ;
+		case 'l':
+			if (sign == '+')
+				channel->setLimit(std::stoi(arg));
+			else
+				channel->removeLimit();
+			break ;
+		case 'i':
+			if (sign == '+')
+				channel->setInviteOnly(true);
+			else
+				channel->setInviteOnly(false);
+			break ;
+		case 't':
+			if (sign == '+')
+				channel->setTopicRestriction(true);
+			else
+				channel->setTopicRestriction(false);
+			break ;
+		default:
+			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, mode) + " :is unknown mode char to me for " + channel->getName());
+			break ;
+	}
 }

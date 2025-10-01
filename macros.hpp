@@ -15,6 +15,7 @@
 #define	RPL_YOURHOST		"002"
 #define	RPL_CREATED			"003"
 #define	RPL_MYINFO			"004"
+#define RPL_UMODEIS			"221"
 #define RPL_CHANNELMODEIS	"324"
 #define RPL_CREATIONTIME	"329"
 #define RPL_NOTOPIC			"331"
