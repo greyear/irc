@@ -21,8 +21,10 @@ class ModeCmd : public ACommand
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 		void	executeNoArgs(Server* server, Client* client, Channel* channel);
 		void	executeWithArgs(Server* server, Client* client, Channel* channel, const std::string& modestring, std::vector<std::string>& args);
-		void	executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg); //check if need so many inputs
-		//void	sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel);
+		bool	executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg); //check if need so many inputs
+		bool	handleI(Server* server, Client* client, Channel* channel, char sign);
+		bool	handleT(Server* server, Client* client, Channel* channel, char sign);
+		void	sendModeConfirmations(Server* server, Client* client, Channel* channel, const std::vector<ModeChange>& changes);
 };
 
 /*

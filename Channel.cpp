@@ -26,6 +26,11 @@ bool Channel::getInviteOnly() const
 	return (_inviteOnly);
 }
 
+bool	Channel::getTopicRestriction() const
+{
+	return (_topicRestricted);
+}
+
 bool	Channel::getHasLimit() const
 {
 	return _hasLimit;

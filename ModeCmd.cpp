@@ -2,7 +2,16 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-//what about users' modes?
+struct ModeChange
+{
+    char mode;
+    char sign;
+    std::string param;
+    ModeChange(char m, char s, const std::string& p = ""): mode(m), sign(s), param(p)
+	{
+		
+	}
+};
 
 ModeCmd::ModeCmd(): _pattern("^[#&][^\\x00-\\x1F\\x7F\\s,:]{1,50}$")
 {
@@ -105,6 +114,7 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 
 	size_t aIndex = 0;
 	char sign = '+';
+	std::vector<ModeChange> successfulChanges;
 	for (char c : modestring)
 	{
 		if (c == '+' || c == '-')
@@ -137,9 +147,11 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 			}
 		}
 
-		executeLetter(server, client, channel, c, sign, arg);
-		//mssgs?
+		if (executeLetter(server, client, channel, c, sign, arg))
+			successfulChanges.push_back(ModeChange(c, sign, arg));
 	}
+	if (!successfulChanges.empty())
+		sendModeConfirmations(server, client, channel, successfulChanges);
 }
 
 bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channel, const std::string& modestring)
@@ -162,7 +174,7 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 	return true;
 }
 
-void	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg)
+bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg)
 {
 	std::cout << "executing with args, mode is " << mode << ", sign is " << sign << std::endl;
 
@@ -188,19 +200,51 @@ void	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, ch
 				channel->removeLimit();
 			break ;
 		case 'i':
-			if (sign == '+')
-				channel->setInviteOnly(true);
-			else
-				channel->setInviteOnly(false);
-			break ;
+			return handleI(server, client, channel, sign);
 		case 't':
-			if (sign == '+')
-				channel->setTopicRestriction(true);
-			else
-				channel->setTopicRestriction(false);
-			break ;
+			return handleT(server, client, channel, sign);
 		default:
 			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, mode) + " :is unknown mode char to me for " + channel->getName());
 			break ;
 	}
+}
+
+bool ModeCmd::handleI(Server* server, Client* client, Channel* channel, char sign)
+{
+	(void)server;
+    (void)client;
+
+	if (sign == '+')
+	{
+		if (channel->getInviteOnly())
+			return (false); //already set
+		channel->setInviteOnly(true);
+	}	
+	else
+	{
+		if (!channel->getInviteOnly())
+			return (false); //already UNset
+		channel->setInviteOnly(false);
+	}
+	return (true);		
+}
+
+bool ModeCmd::handleT(Server* server, Client* client, Channel* channel, char sign)
+{
+	(void)server;
+    (void)client;
+
+	if (sign == '+')
+	{
+		if (channel->getTopicRestriction())
+			return (false); //already restricted
+		channel->setTopicRestriction(true);
+	}	
+	else
+	{
+		if (!channel->getTopicRestriction())
+			return (false); //already NOT
+		channel->setTopicRestriction(false);
+	}
+	return (true);	
 }
