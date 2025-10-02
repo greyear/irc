@@ -69,7 +69,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			server->sendError(client, ERR_INVITEONLYCHAN, channelName + " :Cannot join channel (+i)");
 			continue ;
 		}
-		if (channel->getHasLimit() && channel->getMembers().size() == channel->getLimit())
+		if (channel->getHasLimit() && channel->getMembers().size() >= channel->getLimit())
 		{
 			server->sendError(client, ERR_CHANNELISFULL, channelName + " :Cannot join channel (+l)");
 			continue ;

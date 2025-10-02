@@ -48,19 +48,19 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 			server->sendToClient(client, userModesMsg);
 		}
 		else
-			server->sendError(client, ERR_BADCHANMASK, client->getNick() + " " + channelName + " :Bad Channel Mask");
+			server->sendError(client, ERR_BADCHANMASK, channelName + " :Bad Channel Mask");
 		return;
 	}
 	Channel* channel = server->getChannelByName(channelName);
 	if (!channel)
 	{
-		server->sendError(client, ERR_NOSUCHCHANNEL, client->getNick() + " " + channelName + " :No such channel");
+		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
 
 	if (!client->isInChannel(channelName))
 	{
-		server->sendError(client, ERR_NOTONCHANNEL, client->getNick() + " " + channelName + " :You're not on that channel");
+		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 		return;
 	}
 
@@ -70,7 +70,7 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
 		if (!channel->isOperator(client->getNick())) //check how it works on real things! maybe not right!
 		{
-			server->sendError(client, ERR_CHANOPRIVSNEEDED, client->getNick() + " " + channelName + " :You're not channel operator");
+			server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 			return;
 		}
 		const std::string& modestring = params[1];
@@ -138,6 +138,7 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 		}
 
 		executeLetter(server, client, channel, c, sign, arg);
+		//mssgs?
 	}
 }
 
@@ -180,7 +181,7 @@ void	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, ch
 			else
 				channel->removeKey();
 			break ;
-		case 'l':
+		case 'l':  //what if limit isn't a number
 			if (sign == '+')
 				channel->setLimit(std::stoi(arg));
 			else
