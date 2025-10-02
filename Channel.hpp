@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <set>
+#include <ctime>
 
 class Channel
 {
@@ -19,6 +20,7 @@ class Channel
 		uint					_limit;
 		std::string				_topicSetter;
 		time_t					_topicTime;
+		time_t					_creationTime;
 	public:
 		Channel(const std::string& name);
 		~Channel();
@@ -34,7 +36,17 @@ class Channel
 		const std::string&				getChannelKey() const;
 		const std::string&				getTopicSetter() const;
 		time_t							getTopicTime() const;
+		std::string						getModestring() const;
+		time_t							getCreationTime() const;
+
 		void							setTopic(const std::string &topic, const std::string &topicSetter);
+		void							setTopicRestriction(bool topicRestrictionActive);
+		void							setInviteOnly(bool inviteOnlyActive);
+		void							setLimit(uint limit);
+		void							removeLimit();
+		void							setKey(const std::string &newKey);
+		void							removeKey();
+
 		bool							isEmpty();
 		bool							isOperator(const std::string &nick);
 		bool							isMember(const std::string &nick);
