@@ -12,6 +12,7 @@ CmdList::CmdList()
 	_commands["QUIT"] = std::make_unique<QuitCmd>();
 	_commands["KICK"] = std::make_unique<KickCmd>();
 	_commands["INVITE"] = std::make_unique<InviteCmd>();
+	_commands["TOPIC"] = std::make_unique<TopicCmd>();
 	_commands["MODE"] = std::make_unique<ModeCmd>();
 }
 
