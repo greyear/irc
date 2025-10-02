@@ -2,6 +2,7 @@
 
 #include <iostream>
 #include <set>
+#include <ctime>
 
 class Channel
 {
@@ -12,11 +13,12 @@ class Channel
 		std::set<std::string>	_operators; // MODE -o
 		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ? 
 		bool					_inviteOnly; // MODE -i
-		//bool					_topicRestricted; // MODE -t
+		bool					_topicRestricted; // MODE -t
 		bool					_keyRequired; // MODE -k
 		std::string				_channelKey;
 		bool					_hasLimit; // MODE -l
 		uint					_limit;
+		time_t					_creationTime;
 	public:
 		Channel(const std::string& name);
 		~Channel();
@@ -29,6 +31,16 @@ class Channel
 		const std::set<std::string>&	getMembers() const;
 		bool							getKeyRequired() const;
 		const std::string&				getChannelKey() const;
+		std::string						getModestring() const;
+		time_t							getCreationTime() const;
+
+		void							setTopicRestriction(bool topicRestrictionActive);
+		void							setInviteOnly(bool inviteOnlyActive);
+		void							setLimit(uint limit);
+		void							removeLimit();
+		void							setKey(const std::string &newKey);
+		void							removeKey();
+
 		bool							isEmpty();
 		bool							isOperator(const std::string &nick);
 		bool							isMember(const std::string &nick);

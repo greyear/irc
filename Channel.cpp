@@ -1,7 +1,9 @@
 #include "Channel.hpp"
 
 Channel::Channel(const std::string& name)
-	: _name(name), _inviteOnly(false), /* _topicRestricted(false), */ _keyRequired(false), _hasLimit(false), _limit(0)
+	: _name(name), _inviteOnly(false), _topicRestricted(true),
+	 _keyRequired(false), _hasLimit(false), _limit(0),
+	 _creationTime(std::time(NULL))
 {
 }
 
@@ -49,6 +51,78 @@ const std::string&	Channel::getChannelKey() const
 	return _channelKey;
 }
 
+std::string	Channel::getModestring() const
+{
+	std::string modestring = "+";
+	std::string args;
+
+	if (_keyRequired)
+	{
+		modestring += "k";
+		args += " " + getChannelKey();
+	}
+	if (_hasLimit)
+	{
+		modestring += "l";
+		args += " " + std::to_string(getLimit());
+	}
+	if (_inviteOnly)
+		modestring += "i";
+	if (_topicRestricted)
+		modestring += "t";
+	if (!args.empty())
+		modestring += args;
+	return (modestring);
+}
+
+time_t	Channel::getCreationTime() const
+{
+	return (_creationTime);
+}
+
+////
+
+void	Channel::setTopicRestriction(bool topicRestrictionActive)
+{
+	std::cout << "topicRestricted is set: " << topicRestrictionActive << std::endl;
+	_topicRestricted = topicRestrictionActive;
+}
+
+void	Channel::setInviteOnly(bool inviteOnlyActive)
+{
+	std::cout << "inviteOnly is set: " << inviteOnlyActive << std::endl;
+	_inviteOnly = inviteOnlyActive;
+}
+
+void	Channel::setLimit(uint limit)
+{
+	std::cout << "channel limit is set: " << std::to_string(limit) << std::endl;
+	_hasLimit = true;
+	_limit = limit;
+}
+
+void	Channel::removeLimit()
+{
+	std::cout << "channel limit is removed " << std::endl;
+	_hasLimit = false;
+}
+
+void	Channel::setKey(const std::string &newKey)
+{
+	std::cout << "channel key is set: " << newKey << std::endl;
+	_keyRequired = true;
+	_channelKey = newKey;
+}
+
+void	Channel::removeKey()
+{
+	std::cout << "channel key is removed " << std::endl;
+	_keyRequired = false;
+}
+
+//do we need to check existing values of the key/limit/etc...
+//////
+
 bool Channel::isEmpty()
 {
 	return (_members.empty());
@@ -76,6 +150,7 @@ void	Channel::addMember(const std::string &nick)
 
 void	Channel::addOperator(const std::string &nick)
 {
+	std::cout << "channel operator is added " << nick << std::endl;
 	_operators.insert(nick);
 }
 
@@ -91,6 +166,7 @@ void	Channel::removeMember(const std::string &nick)
 
 void	Channel::removeOperator(const std::string &nick)
 {
+	std::cout << "channel operator is removed " << nick << std::endl;
 	_operators.erase(nick);
 }
 void	Channel::removeInvited(const std::string &nick)
