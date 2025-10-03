@@ -32,12 +32,12 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 
 	if (!channel)
 	{
-		server->sendError(client, ERR_NOSUCHCHANNEL, clientNick + " " + channelName + " :No such channel");
+		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
 	if (!client->isInChannel(channelName))
 	{
-		server->sendError(client, ERR_NOTONCHANNEL, clientNick + " " + channelName + " :You're not on that channel");
+		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 		return;
 	}
 
@@ -46,7 +46,7 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
         const std::string &topic = channel->getTopic();
         if (topic.empty())
         {
-            server->sendError(client, RPL_NOTOPIC, clientNick + " " + channelName + " :No topic is set");
+            server->sendError(client, RPL_NOTOPIC, channelName + " :No topic is set");
         }
         else
         {
@@ -64,7 +64,7 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
     }
 	if (channel->getTopicRestricted() && !channel->isOperator(clientNick))
 	{
-		server->sendError(client, ERR_CHANOPRIVSNEEDED, clientNick + " " + channelName + " :You're not channel operator");
+		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
 	}
 
@@ -81,6 +81,9 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 			newTopic += " ";
 		newTopic += multiWordParam;
 	}
+	if (newTopic.length() > MAX_TOPIC_LENGTH)
+    	newTopic = newTopic.substr(0, MAX_TOPIC_LENGTH);
+	
 	channel->setTopic(newTopic, client->getFullIdentifier());
 	sendTopicNotification(server, client, channel, newTopic);
 }
