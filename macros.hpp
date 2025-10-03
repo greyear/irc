@@ -11,6 +11,12 @@
 #define FLUSH_LATER			2
 #define	CHANNEL_LIMIT		42
 
+constexpr size_t MAX_TOPIC_LENGTH = 300; //TODO ^do we need types for the above?
+constexpr size_t MAX_KICK_REASON  = 200;
+constexpr size_t MAX_PART_REASON  = 200;
+constexpr size_t MAX_QUIT_REASON  = 200;
+constexpr size_t MAX_PRIVMSG_TXT  = 400;
+
 #define	RPL_WELCOME			"001"
 #define	RPL_YOURHOST		"002"
 #define	RPL_CREATED			"003"

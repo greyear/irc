@@ -14,8 +14,6 @@ PrivMsgCmd::~PrivMsgCmd()
 
 }
 
-//add limit for the length!
-
 bool PrivMsgCmd::needsRegistration() const
 {
 	return true;
@@ -52,7 +50,10 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		server->sendError(client, ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
 		return;
 	}
-
+	if (message.length() > MAX_PRIVMSG_TXT)
+	{
+   		message = message.substr(0, MAX_PRIVMSG_TXT); //TODO: check the message construction!
+	}
 	for (const std::string& targetNick : targets)
 	{
 		Client* targetClient = server->getClientByNick(targetNick);

@@ -2,7 +2,7 @@
 
 Channel::Channel(const std::string& name)
 	: _name(name), _inviteOnly(false), _topicRestricted(true),
-	 _keyRequired(false), _hasLimit(false), _limit(0), _topicTime(0)
+	 _keyRequired(false), _hasLimit(false), _limit(0), _topicTime(0),
 	 _creationTime(std::time(NULL))
 {
 }

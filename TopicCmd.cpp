@@ -32,29 +32,26 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 
 	if (!channel)
 	{
-		server->sendError(client, ERR_NOSUCHCHANNEL, clientNick + " " + channelName + " :No such channel");
+		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
 	if (!client->isInChannel(channelName))
 	{
-		server->sendError(client, ERR_NOTONCHANNEL, clientNick + " " + channelName + " :You're not on that channel");
+		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 		return;
 	}
 
-    // (TOPIC #channel)
     if (multiWordParam.empty() && params.size() < 2)
     {
         const std::string &topic = channel->getTopic();
         if (topic.empty())
         {
-            server->sendError(client, RPL_NOTOPIC, clientNick + " " + channelName + " :No topic is set");
+            server->sendError(client, RPL_NOTOPIC, channelName + " :No topic is set");
         }
         else
         {
             std::string topicMsg =  ":" + server->getServerName() + " " + RPL_TOPIC + " " + clientNick + " " + channelName + " :" + topic;
             server->sendToClient(client, topicMsg);
-         
-			// RPL_TOPICWHOTIME
 			if (channel->getTopicTime() != 0)
 			{
 				std::string topicWhoMsg;
@@ -67,7 +64,7 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
     }
 	if (channel->getTopicRestricted() && !channel->isOperator(clientNick))
 	{
-		server->sendError(client, ERR_CHANOPRIVSNEEDED, clientNick + " " + channelName + " :You're not channel operator");
+		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
 	}
 
@@ -84,9 +81,16 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 			newTopic += " ";
 		newTopic += multiWordParam;
 	}
+	if (newTopic.length() > MAX_TOPIC_LENGTH)
+    	newTopic = newTopic.substr(0, MAX_TOPIC_LENGTH);
+	
 	channel->setTopic(newTopic, client->getFullIdentifier());
+	sendTopicNotification(server, client, channel, newTopic);
+}
 
-	std::string topicMsg = ":" + client->getFullIdentifier() + " TOPIC " + channelName + " :" + newTopic;
+void	TopicCmd::sendTopicNotification(Server* server, Client* client, Channel* channel, const std::string& newTopic)
+{
+	std::string topicMsg = ":" + client->getFullIdentifier() + " TOPIC " + channel->getName() + " :" + newTopic;
 	for (const std::string& memberNick : channel->getMembers())
 	{
 		Client* memberClient = server->getClientByNick(memberNick);
@@ -96,3 +100,4 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 		}
 	}
 }
+

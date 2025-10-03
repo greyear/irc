@@ -112,13 +112,13 @@ void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* chan
 	{
 		std::string topicMsg = ":" + server->getServerName() + " " + RPL_TOPIC + " " + client->getNick() + " " + channelName + " :" + channel->getTopic();
 		server->sendToClient(client, topicMsg);
-	} 
-	else
-	{
-		std::string topicMsg = ":" + server->getServerName() + " " + RPL_NOTOPIC + " " + client->getNick() + " " + channelName + " :No topic is set";
-		server->sendToClient(client, topicMsg);
 	}
-
+	if (channel->getTopicTime() != 0)
+	{
+		std::string topicWhoMsg =  ":" + server->getServerName() + " " + RPL_TOPICWHOTIME + " " + client->getNick() + " " + channelName + " "
+								+ channel->getTopicSetter() + " " + std::to_string(channel->getTopicTime());
+		server->sendToClient(client, topicWhoMsg);
+	}
 	sendMembersList(server, client, channel, channelName);
 }
 

@@ -66,7 +66,10 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
         reason = multiWordParam;
     }
-	//truncate the reason if long
+	if (!reason.empty() && reason.length() > MAX_PART_REASON)
+	{
+		reason = reason.substr(0, MAX_PART_REASON);
+	}
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		const std::string& channelName = channels[i];
