@@ -36,6 +36,7 @@ void QuitCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
         reason = multiWordParam;
     }
+	//truncate the reason if it's long
 	sendQuitConfirmation(server, client, reason);
 	server->removeClient(client);
 }

@@ -21,8 +21,6 @@ bool NickCmd::isNickValid(const std::string& nick)
 	return std::regex_match(nick, _pattern);
 }
 
-//TODO: validate nickname itself following documentation
-
 void NickCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
 	(void)multiWordParam;
@@ -59,5 +57,3 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		server->sendWelcomeMsg(client);
 	}
 }
-
-//-!- gupter is now known as guru PrevSender is known as CurSender

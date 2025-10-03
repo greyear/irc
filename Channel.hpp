@@ -28,6 +28,7 @@ class Channel
 		const std::string&				getName() const;
 		const std::string&				getTopic() const;
 		bool							getInviteOnly() const;
+		bool							getTopicRestriction() const;
 		bool							getHasLimit() const;
 		uint							getLimit() const;
 		const std::set<std::string>&	getMembers() const;
