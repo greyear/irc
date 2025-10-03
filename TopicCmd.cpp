@@ -41,7 +41,6 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 		return;
 	}
 
-    // (TOPIC #channel)
     if (multiWordParam.empty() && params.size() < 2)
     {
         const std::string &topic = channel->getTopic();
@@ -53,8 +52,6 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
         {
             std::string topicMsg =  ":" + server->getServerName() + " " + RPL_TOPIC + " " + clientNick + " " + channelName + " :" + topic;
             server->sendToClient(client, topicMsg);
-         
-			// RPL_TOPICWHOTIME
 			if (channel->getTopicTime() != 0)
 			{
 				std::string topicWhoMsg;
@@ -85,8 +82,12 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 		newTopic += multiWordParam;
 	}
 	channel->setTopic(newTopic, client->getFullIdentifier());
+	sendTopicNotification(server, client, channel, newTopic);
+}
 
-	std::string topicMsg = ":" + client->getFullIdentifier() + " TOPIC " + channelName + " :" + newTopic;
+void	TopicCmd::sendTopicNotification(Server* server, Client* client, Channel* channel, const std::string& newTopic)
+{
+	std::string topicMsg = ":" + client->getFullIdentifier() + " TOPIC " + channel->getName() + " :" + newTopic;
 	for (const std::string& memberNick : channel->getMembers())
 	{
 		Client* memberClient = server->getClientByNick(memberNick);
@@ -96,3 +97,4 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
 		}
 	}
 }
+
