@@ -36,17 +36,17 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 
 	if (!channel)
 	{
-		server->sendError(client, ERR_NOSUCHCHANNEL, client->getNick() + " " + channelName + " :No such channel");
+		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
 	if (!client->isInChannel(channelName))
 	{
-		server->sendError(client, ERR_NOTONCHANNEL, client->getNick() + " " + channelName + " :You're not on that channel");
+		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 		return;
 	}
 	if (!channel->isOperator(kickerNick))
 	{
-		server->sendError(client, ERR_CHANOPRIVSNEEDED, client->getNick() + " " + channelName + " :You're not channel operator");
+		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
 	}
 	std::vector<std::string> targets;
@@ -56,18 +56,18 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
 		if (targetNick == kickerNick)
 		{
-			server->sendError(client, ERR_CANTKICKYOURSELF, client->getNick() + " " + channelName + " :You cannot kick yourself from the channel");
+			server->sendError(client, ERR_CANTKICKYOURSELF, channelName + " :You cannot kick yourself from the channel");
 			continue;
 		}
 		Client* targetClient = server->getClientByNick(targetNick);
 		if (!targetClient)
 		{
-			server->sendError(client, ERR_NOSUCHNICK, client->getNick() + " " + targetNick + " :No such nick/channel");
+			server->sendError(client, ERR_NOSUCHNICK, targetNick + " :No such nick/channel");
 			continue;
 		}
 		if (!channel->isMember(targetNick))
 		{
-			server->sendError(client, ERR_USERNOTINCHANNEL, client->getNick() + " " + targetNick + " " + channelName + " :They aren't on that channel");
+			server->sendError(client, ERR_USERNOTINCHANNEL, targetNick + " " + channelName + " :They aren't on that channel");
 			continue;
 		}
 		
@@ -88,6 +88,7 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 				reason += " ";
 			reason += multiWordParam;
 		}
+		//truncate if long
 		if (reason.empty())
 			reason = targetNick; // TODO: Default = kicker's nick or target's nick ?
 		sendKickConfirmation(server, client, channel, channelName, targetNick, reason);

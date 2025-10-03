@@ -14,6 +14,8 @@ PrivMsgCmd::~PrivMsgCmd()
 
 }
 
+//add limit for the length!
+
 bool PrivMsgCmd::needsRegistration() const
 {
 	return true;
@@ -56,7 +58,7 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		Client* targetClient = server->getClientByNick(targetNick);
 		if (targetClient == nullptr)
 		{
-			server->sendError(client, ERR_NOSUCHNICK, client->getNick() + " :No such nick/channel");
+			server->sendError(client, ERR_NOSUCHNICK, " :No such nick/channel");
 			continue;
 		}
 		
