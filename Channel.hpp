@@ -11,13 +11,15 @@ class Channel
 		std::string				_topic;
 		std::set<std::string>	_members;
 		std::set<std::string>	_operators; // MODE -o
-		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ? 
+		std::set<std::string>	_invitedUsers; // TODO : when quit cmd is called ?
 		bool					_inviteOnly; // MODE -i
 		bool					_topicRestricted; // MODE -t
 		bool					_keyRequired; // MODE -k
 		std::string				_channelKey;
 		bool					_hasLimit; // MODE -l
 		uint					_limit;
+		std::string				_topicSetter;
+		time_t					_topicTime;
 		time_t					_creationTime;
 	public:
 		Channel(const std::string& name);
@@ -30,11 +32,15 @@ class Channel
 		bool							getHasLimit() const;
 		uint							getLimit() const;
 		const std::set<std::string>&	getMembers() const;
+		bool							getTopicRestricted() const;
 		bool							getKeyRequired() const;
 		const std::string&				getChannelKey() const;
+		const std::string&				getTopicSetter() const;
+		time_t							getTopicTime() const;
 		std::string						getModestring() const;
 		time_t							getCreationTime() const;
 
+		void							setTopic(const std::string &topic, const std::string &topicSetter);
 		void							setTopicRestriction(bool topicRestrictionActive);
 		void							setInviteOnly(bool inviteOnlyActive);
 		void							setLimit(uint limit);

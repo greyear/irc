@@ -2,7 +2,7 @@
 
 Channel::Channel(const std::string& name)
 	: _name(name), _inviteOnly(false), _topicRestricted(true),
-	 _keyRequired(false), _hasLimit(false), _limit(0),
+	 _keyRequired(false), _hasLimit(false), _limit(0), _topicTime(0)
 	 _creationTime(std::time(NULL))
 {
 }
@@ -46,6 +46,11 @@ const std::set<std::string>& Channel::getMembers() const
 	return _members;
 }
 
+bool	Channel::getTopicRestricted() const
+{
+	return _topicRestricted;
+}
+
 bool	Channel::getKeyRequired() const
 {
 	return _keyRequired;
@@ -54,6 +59,23 @@ bool	Channel::getKeyRequired() const
 const std::string&	Channel::getChannelKey() const
 {
 	return _channelKey;
+}
+
+const	std::string& Channel::getTopicSetter() const
+{
+	return _topicSetter;
+}
+
+time_t	Channel::getTopicTime() const
+{
+	return _topicTime;
+}
+
+void	Channel::setTopic(const std::string &topic, const std::string &topicSetter)
+{
+	_topic = topic;
+	_topicSetter = topicSetter;
+	_topicTime = time(NULL);
 }
 
 std::string	Channel::getModestring() const
