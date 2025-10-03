@@ -181,38 +181,98 @@ bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, ch
 	//need to check if arg is empty
 	switch (mode)
 	{
-		case 'o': //check if nick exists
-			if (sign == '+')
-				channel->addOperator(arg);
-			else
-				channel->removeOperator(arg);
-			break ;
+		case 'o':
+			return handleO(server, client, channel, sign, arg);
 		case 'k':
-			if (sign == '+')
-				channel->setKey(arg);
-			else
-				channel->removeKey();
-			break ;
-		case 'l':  //what if limit isn't a number
-			if (sign == '+')
-				channel->setLimit(std::stoi(arg));
-			else
-				channel->removeLimit();
-			break ;
+			return handleK(server, client, channel, sign, arg);
+		case 'l':  //check if limit isn't a number, -1 and 0, maxInt+1
+			return handleL(server, client, channel, sign, arg);
 		case 'i':
 			return handleI(server, client, channel, sign);
 		case 't':
 			return handleT(server, client, channel, sign);
 		default:
 			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, mode) + " :is unknown mode char to me for " + channel->getName());
-			break ;
+			return (false);
 	}
+}
+
+bool ModeCmd::handleO(Server* server, Client* client, Channel* channel, char sign, const std::string& nickname)
+{
+	Client* target = server->getClientByNick(nickname);
+	if (!target)
+	{
+		server->sendError(client, ERR_NOSUCHNICK, nickname + " :No such nick/channel");
+		return (false);
+	}
+	if (!channel->isMember(nickname))
+	{
+		server->sendError(client, ERR_USERNOTINCHANNEL, nickname + " " + channel->getName() + " :They aren't on that channel");
+		return (false);
+	}
+	if (sign == '+')
+	{
+		if (channel->isOperator(nickname))
+			return (false);
+		channel->addOperator(nickname);
+	}
+	else
+	{
+		if (!channel->isOperator(nickname))
+			return (false);
+		channel->removeOperator(nickname);
+	}
+	return (true);
+}
+
+bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sign, const std::string& key)
+{
+	//maybe -k with no args should work
+	if (sign == '+')
+	{
+		if (key.empty()) //some other checks and cutting
+			return (false);
+		channel->setKey(key);
+	}
+	else
+	{
+		if (!channel->getKeyRequired())
+			return (false);
+		channel->removeKey();
+	}
+	return (true);
+}
+
+bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sign, const std::string& limitStr)
+{
+	if (sign == '+')
+	{
+		int limit;
+		try
+		{
+			limit = std::stoi(limitStr);
+		}
+		catch(const std::exception& e)
+		{
+			return (false);
+		}
+		if (limit <= 0)
+			return (false);
+		channel->setLimit(limit);
+	}
+	else
+	{
+		if (!channel->getHasLimit())
+			return (false);
+		channel->removeLimit();
+	}
+	return (true);
 }
 
 bool ModeCmd::handleI(Server* server, Client* client, Channel* channel, char sign)
 {
 	(void)server;
-    (void)client;
+	(void)client;
 
 	if (sign == '+')
 	{
@@ -226,13 +286,13 @@ bool ModeCmd::handleI(Server* server, Client* client, Channel* channel, char sig
 			return (false); //already UNset
 		channel->setInviteOnly(false);
 	}
-	return (true);		
+	return (true);
 }
 
 bool ModeCmd::handleT(Server* server, Client* client, Channel* channel, char sign)
 {
 	(void)server;
-    (void)client;
+	(void)client;
 
 	if (sign == '+')
 	{
@@ -246,5 +306,49 @@ bool ModeCmd::handleT(Server* server, Client* client, Channel* channel, char sig
 			return (false); //already NOT
 		channel->setTopicRestriction(false);
 	}
-	return (true);	
+	return (true);
+}
+
+void	ModeCmd::sendModeConfirmations(Server* server, Client* client, Channel* channel, const std::vector<ModeChange>& changes)
+{
+	std::string plusModes = "";
+	std::string minusModes = "";
+	std::vector<std::string> params;
+
+	for (const auto& change : changes)
+	{
+		if (change.sign == '+')
+		{
+			plusModes += change.mode;
+			if (!change.param.empty())
+				params.push_back(change.param);
+		}
+		else //minus
+		{
+			minusModes += change.mode;
+			if (change.mode == 'k')
+				params.push_back("*");
+			else
+			{
+				if (!change.param.empty())
+					params.push_back(change.param);
+			}
+		}
+	}
+
+	std::string allModes = "";
+	if (!plusModes.empty())
+		allModes += "+" + plusModes;
+	if (!minusModes.empty())
+		allModes += "+" + minusModes;
+	for (const auto& param : params)
+		allModes += " " + param;
+
+	std::string modeMsg = ":" + client->getFullIdentifier() + " MODE " + channel->getName() + " " + allModes + "\r\n";
+	for (const std::string& memberNick : channel->getMembers())
+	{
+		Client* member = server->getClientByNick(memberNick);
+		if (member)
+			server->sendToClient(member, modeMsg);
+	}
 }

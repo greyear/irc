@@ -14,6 +14,8 @@ PrivMsgCmd::~PrivMsgCmd()
 
 }
 
+//add limit for the length!
+
 bool PrivMsgCmd::needsRegistration() const
 {
 	return true;

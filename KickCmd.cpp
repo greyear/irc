@@ -88,6 +88,7 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 				reason += " ";
 			reason += multiWordParam;
 		}
+		//truncate if long
 		if (reason.empty())
 			reason = targetNick; // TODO: Default = kicker's nick or target's nick ?
 		sendKickConfirmation(server, client, channel, channelName, targetNick, reason);

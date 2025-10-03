@@ -116,20 +116,16 @@ void	Channel::setKey(const std::string &newKey)
 {
 	//looks like irssi allows to rewrite the key on top of previous one!
 	//do we need to cut up to some length?
-	std::cout << "channel key is set: " << newKey << std::endl;
+	std::cout << "channel key is set: [" << newKey << "]" << std::endl;
 	_keyRequired = true;
 	_channelKey = newKey;
 }
 
 void	Channel::removeKey()
 {
-	//do we need to validate the CORRECT key?
 	std::cout << "channel key is removed " << std::endl;
 	_keyRequired = false;
 }
-
-//do we need to check existing values of the key/limit/etc...
-//////
 
 bool Channel::isEmpty()
 {
