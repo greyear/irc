@@ -9,6 +9,13 @@ class ModeCmd : public ACommand
 {
 	private:
 		std::regex _pattern;
+		struct ModeChange
+		{
+			char mode;
+			char sign;
+			std::string param;
+			ModeChange(char m, char s, const std::string& p = "");
+		};
 	protected:
 
 	public:
