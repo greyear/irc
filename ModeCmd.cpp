@@ -2,16 +2,11 @@
 #include "Client.hpp"
 #include "Server.hpp"
 
-struct ModeChange
+
+ModeCmd::ModeChange::ModeChange(char m, char s, const std::string& p): mode(m), sign(s), param(p)
 {
-    char mode;
-    char sign;
-    std::string param;
-    ModeChange(char m, char s, const std::string& p = ""): mode(m), sign(s), param(p)
-	{
-		
-	}
-};
+	
+}
 
 ModeCmd::ModeCmd(): _pattern("^[#&][^\\x00-\\x1F\\x7F\\s,:]{1,50}$")
 {
@@ -156,12 +151,10 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 
 bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channel, const std::string& modestring)
 {
-	char sign = '+';
 	for (char c : modestring)
 	{
 		if (c == '+' || c == '-')
 		{
-			sign = c;
 			continue ;
 		}
 		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
@@ -227,6 +220,8 @@ bool ModeCmd::handleO(Server* server, Client* client, Channel* channel, char sig
 
 bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sign, const std::string& key)
 {
+	(void)server;
+	(void)client;
 	//maybe -k with no args should work
 	if (sign == '+')
 	{
@@ -245,6 +240,8 @@ bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sig
 
 bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sign, const std::string& limitStr)
 {
+	(void)server;
+	(void)client;
 	if (sign == '+')
 	{
 		int limit;
@@ -340,7 +337,7 @@ void	ModeCmd::sendModeConfirmations(Server* server, Client* client, Channel* cha
 	if (!plusModes.empty())
 		allModes += "+" + plusModes;
 	if (!minusModes.empty())
-		allModes += "+" + minusModes;
+		allModes += "-" + minusModes;
 	for (const auto& param : params)
 		allModes += " " + param;
 
