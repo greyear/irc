@@ -16,6 +16,7 @@ constexpr size_t MAX_KICK_REASON  = 200;
 constexpr size_t MAX_PART_REASON  = 200;
 constexpr size_t MAX_QUIT_REASON  = 200;
 constexpr size_t MAX_PRIVMSG_TXT  = 400;
+constexpr size_t MAX_CHANNEL_KEY  = 23;
 
 #define	RPL_WELCOME			"001"
 #define	RPL_YOURHOST		"002"

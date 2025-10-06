@@ -38,12 +38,13 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 	}
 	if (params.empty())
 	{
-		server->sendError(client, ERR_NEEDMOREPARAMS, "MODE :Not enough parameters");
+		server->sendError(client, ERR_NEEDMOREPARAMS, " MODE :Not enough parameters");
 		return;
 	}
 	
 	const std::string& channelName = params[0];
-	if (!isChannelNameValid(channelName))
+	Channel* channel = server->getChannelByName(channelName);
+	if (!channel)
 	{
 		if (channelName == client->getNick())
 		{
@@ -52,13 +53,7 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 			server->sendToClient(client, userModesMsg);
 		}
 		else
-			server->sendError(client, ERR_BADCHANMASK, channelName + " :Bad Channel Mask");
-		return;
-	}
-	Channel* channel = server->getChannelByName(channelName);
-	if (!channel)
-	{
-		server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
+			server->sendError(client, ERR_NOSUCHCHANNEL, channelName + " :No such channel");
 		return;
 	}
 
@@ -72,7 +67,7 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 		executeNoArgs(server, client, channel);
 	else
 	{
-		if (!channel->isOperator(client->getNick())) //check how it works on real things! maybe not right!
+		if (!channel->isOperator(client->getNick()))
 		{
 			server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 			return;
@@ -90,8 +85,6 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 
 void	ModeCmd::executeNoArgs(Server* server, Client* client, Channel* channel)
 {
-	std::cout << "executing with no args" << std::endl;
-
 	std::string modestring = channel->getModestring();
 	std::string modestringMsg = ":" + server->getServerName() + " " + RPL_CHANNELMODEIS + " " + client->getNick() + " " + channel->getName() + " " + modestring + "\r\n";
 	server->sendToClient(client, modestringMsg);
@@ -102,8 +95,6 @@ void	ModeCmd::executeNoArgs(Server* server, Client* client, Channel* channel)
 
 void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, const std::string& modestring, std::vector<std::string>& args)
 {
-	std::cout << "executing with some args" << std::endl;
-
 	if (!validateModestring(server, client, channel, modestring))
 		return ;
 
@@ -124,9 +115,9 @@ void	ModeCmd::executeWithArgs(Server* server, Client* client, Channel* channel, 
 			if (c == 'k' || c == 'o' || c == 'l')
 				needsArgs = true;
 		}
-		else //sign == '-'
+		else
 		{
-			if (c == 'k' || c == 'o')
+			if (c == 'o')
 				needsArgs = true;
 		}
 
@@ -157,9 +148,8 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 		{
 			continue ;
 		}
-		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l'))
+		if (!(c == 'i' || c == 't' || c == 'k' || c == 'o' || c == 'l' || c == 'b'))
 		{
-			std::cout << "CHAR IS: " + std::string(1, c) << std::endl;
 			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, c) + " :is unknown mode char to me for " + channel->getName());
 			return false;
 		}
@@ -167,9 +157,8 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 	return true;
 }
 
-bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string arg)
+bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string& arg)
 {
-	std::cout << "executing with args, mode is " << mode << ", sign is " << sign << std::endl;
 
 	//need to check if arg is empty
 	switch (mode)
@@ -178,12 +167,14 @@ bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, ch
 			return handleO(server, client, channel, sign, arg);
 		case 'k':
 			return handleK(server, client, channel, sign, arg);
-		case 'l':  //check if limit isn't a number, -1 and 0, maxInt+1
+		case 'l':
 			return handleL(server, client, channel, sign, arg);
 		case 'i':
 			return handleI(server, client, channel, sign);
 		case 't':
 			return handleT(server, client, channel, sign);
+		case 'b':
+			return (false);
 		default:
 			server->sendError(client, ERR_UNKNOWNMODE, std::string(1, mode) + " :is unknown mode char to me for " + channel->getName());
 			return (false);
@@ -204,29 +195,23 @@ bool ModeCmd::handleO(Server* server, Client* client, Channel* channel, char sig
 		return (false);
 	}
 	if (sign == '+')
-	{
-		if (channel->isOperator(nickname))
-			return (false);
 		channel->addOperator(nickname);
-	}
 	else
-	{
-		if (!channel->isOperator(nickname))
-			return (false);
 		channel->removeOperator(nickname);
-	}
 	return (true);
 }
 
-bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sign, const std::string& key)
+bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sign, std::string& key)
 {
 	(void)server;
 	(void)client;
 	//maybe -k with no args should work
 	if (sign == '+')
 	{
-		if (key.empty()) //some other checks and cutting
+		if (key.empty()) //some other checks
 			return (false);
+		if (key.length() > MAX_CHANNEL_KEY)
+			key = key.substr(0, 23);
 		channel->setKey(key);
 	}
 	else
@@ -238,7 +223,7 @@ bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sig
 	return (true);
 }
 
-bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sign, const std::string& limitStr)
+bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sign, std::string& limitStr)
 {
 	(void)server;
 	(void)client;
@@ -248,6 +233,7 @@ bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sig
 		try
 		{
 			limit = std::stoi(limitStr);
+			std::cout << "limitstr is: " << limitStr << " and limit is: " << limit << std::endl;
 		}
 		catch(const std::exception& e)
 		{
@@ -255,6 +241,7 @@ bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sig
 		}
 		if (limit <= 0)
 			return (false);
+		limitStr = std::to_string(limit);
 		channel->setLimit(limit);
 	}
 	else
@@ -262,6 +249,7 @@ bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sig
 		if (!channel->getHasLimit())
 			return (false);
 		channel->removeLimit();
+		limitStr = "";
 	}
 	return (true);
 }
@@ -274,13 +262,13 @@ bool ModeCmd::handleI(Server* server, Client* client, Channel* channel, char sig
 	if (sign == '+')
 	{
 		if (channel->getInviteOnly())
-			return (false); //already set
+			return (false);
 		channel->setInviteOnly(true);
 	}	
 	else
 	{
 		if (!channel->getInviteOnly())
-			return (false); //already UNset
+			return (false);
 		channel->setInviteOnly(false);
 	}
 	return (true);
@@ -294,13 +282,13 @@ bool ModeCmd::handleT(Server* server, Client* client, Channel* channel, char sig
 	if (sign == '+')
 	{
 		if (channel->getTopicRestriction())
-			return (false); //already restricted
+			return (false);
 		channel->setTopicRestriction(true);
 	}	
 	else
 	{
 		if (!channel->getTopicRestriction())
-			return (false); //already NOT
+			return (false);
 		channel->setTopicRestriction(false);
 	}
 	return (true);
