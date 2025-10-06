@@ -199,3 +199,22 @@ void	Channel::removeInvited(const std::string &nick)
 {
 	_invitedUsers.erase(nick);
 }
+
+void	Channel::updateNickChange(const std::string &oldNick, const std::string &newNick)
+{
+	if (isMember(oldNick))
+	{
+		_members.erase(oldNick);
+		_members.insert(newNick);
+	}
+	if (isOperator(oldNick))
+	{
+		_operators.erase(oldNick);
+		_operators.insert(newNick);
+	}
+	if (isInvited(oldNick))
+	{
+		_invitedUsers.erase(oldNick);
+		_invitedUsers.insert(newNick);
+	}
+}
