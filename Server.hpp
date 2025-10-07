@@ -70,7 +70,6 @@ class Server
 		//sending messages
 		void	sendWelcomeMsg(Client *client);
 		void	sendError(Client *client, const std::string& errCode, const std::string& msg);
-		void	sendInfo(Client *client, const std::string& msg);
 		void	sendToClient(Client *client, const std::string& msg);
 
 		//signals
