@@ -111,41 +111,33 @@ time_t	Channel::getCreationTime() const
 
 void	Channel::setTopicRestriction(bool topicRestrictionActive)
 {
-	std::cout << "topicRestricted is set: " << topicRestrictionActive << std::endl;
 	_topicRestricted = topicRestrictionActive;
 }
 
 void	Channel::setInviteOnly(bool inviteOnlyActive)
 {
-	std::cout << "inviteOnly is set: " << inviteOnlyActive << std::endl;
 	_inviteOnly = inviteOnlyActive;
 }
 
 void	Channel::setLimit(uint limit)
 {
-	std::cout << "channel limit is set: " << std::to_string(limit) << std::endl;
 	_hasLimit = true;
 	_limit = limit;
 }
 
 void	Channel::removeLimit()
 {
-	std::cout << "channel limit is removed " << std::endl;
 	_hasLimit = false;
 }
 
 void	Channel::setKey(const std::string &newKey)
 {
-	//looks like irssi allows to rewrite the key on top of previous one!
-	//do we need to cut up to some length?
-	std::cout << "channel key is set: [" << newKey << "]" << std::endl;
 	_keyRequired = true;
 	_channelKey = newKey;
 }
 
 void	Channel::removeKey()
 {
-	std::cout << "channel key is removed " << std::endl;
 	_keyRequired = false;
 }
 
@@ -176,7 +168,6 @@ void	Channel::addMember(const std::string &nick)
 
 void	Channel::addOperator(const std::string &nick)
 {
-	std::cout << "channel operator is added " << nick << std::endl;
 	_operators.insert(nick);
 }
 
@@ -192,7 +183,6 @@ void	Channel::removeMember(const std::string &nick)
 
 void	Channel::removeOperator(const std::string &nick)
 {
-	std::cout << "channel operator is removed " << nick << std::endl;
 	_operators.erase(nick);
 }
 void	Channel::removeInvited(const std::string &nick)

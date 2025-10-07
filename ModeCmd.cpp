@@ -69,6 +69,7 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
 		if (!channel->isOperator(client->getNick()))
 		{
+			std::cout << "MODE cmd is executed for channel" << channel->getName() + ", params are: " + params[1] << std::endl;
 			server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 			return;
 		}
@@ -233,7 +234,6 @@ bool ModeCmd::handleL(Server* server, Client* client, Channel* channel, char sig
 		try
 		{
 			limit = std::stoi(limitStr);
-			std::cout << "limitstr is: " << limitStr << " and limit is: " << limit << std::endl;
 		}
 		catch(const std::exception& e)
 		{
