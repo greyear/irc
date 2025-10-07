@@ -32,18 +32,31 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		server->sendError(client, ERR_NORECIPIENT, " :No recipient given (PRIVMSG)");
 		return;
 	}
-
 	std::string message;
-	if (!multiWordParam.empty())
-		message = multiWordParam;
-	else if (params.size() > 1)
-		message = params[1];
+	if (params.size() > 1)
+	{
+		for (size_t i = 1; i < params.size(); ++i)
+		{
+			if (i > 1)
+				message += " ";
+			message += params[i];
+		}
+		if (!multiWordParam.empty())
+		{
+            if (!message.empty())
+				message += " ";
+            message += multiWordParam;
+        }
+	}
+	else if (!multiWordParam.empty())
+	{
+        message = multiWordParam;
+    }
 	else
 	{
 		server->sendError(client, ERR_NOTEXTTOSEND, " :No text to send");
 		return;
 	}
-	
 	std::vector<std::string> targets = splitTargets(params[0]);
 	if (targets.empty())
 	{
@@ -52,18 +65,56 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 	}
 	if (message.length() > MAX_PRIVMSG_TXT)
 	{
-   		message = message.substr(0, MAX_PRIVMSG_TXT); //TODO: check the message construction!
+		std::cout << "truncating PRIVMSG with length : " << message.length() << std::endl;
+   		message = message.substr(0, MAX_PRIVMSG_TXT);
+		std::cout << "truncated PRIVMSG length: " << message.length() << message << std::endl;
 	}
-	for (const std::string& targetNick : targets)
+	for (const std::string& target : targets)
 	{
-		Client* targetClient = server->getClientByNick(targetNick);
-		if (targetClient == nullptr)
+		if (!target.empty() && (target[0] == '#' || target[0] == '&'))
 		{
-			server->sendError(client, ERR_NOSUCHNICK, " :No such nick/channel");
-			continue;
+			Channel *targetChan = server->getChannelByName(target);
+			if (!targetChan)
+			{
+				server->sendError(client, ERR_NOSUCHNICK, target + " :No such nick/channel");
+				continue;
+			}
+				if (!targetChan->isMember(client->getNick()))
+				{
+					server->sendError(client, ERR_CANNOTSENDTOCHAN, target + " :Cannot send to channel");
+					continue;
+				}
+			std::string channelMsg = ":" + client->getFullIdentifier() + " PRIVMSG " + target + " :" + message;
+			sendToChanMembers(targetChan, channelMsg, client, server);
 		}
+		else
+		{
+			Client* targetClient = server->getClientByNick(target);
+			if (!targetClient)
+			{
+				server->sendError(client, ERR_NOSUCHNICK, target + " :No such nick/channel");
+				continue;
+			}
+			
+			std::string privMsg = ":" + client->getFullIdentifier() + " PRIVMSG " + target + " :" + message;
+			server->sendToClient(targetClient, privMsg);
+		}
+	}
+}
+
+void PrivMsgCmd::sendToChanMembers(Channel *targetChan, const std::string& channelMsg, Client *client, Server *server)
+{
+	const std::set<std::string>& members = targetChan->getMembers();
+
+	for (const std::string& memberNick : members)
+	{
+		if (memberNick == client->getNick())
+			continue;
 		
-		std::string privMsg = ":" + client->getNick() + "!" + client->getUser() + "@" + client->getHostName() + " PRIVMSG " + targetNick + " :" + message;
-		server->sendToClient(targetClient, privMsg);
+		Client* member = server->getClientByNick(memberNick);
+		if (member)
+		{
+			server->sendToClient(member, channelMsg);
+		}
 	}
 }

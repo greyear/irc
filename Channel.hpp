@@ -58,4 +58,5 @@ class Channel
 		void							removeMember(const std::string &nick);
 		void							removeOperator(const std::string &nick);
 		void							removeInvited(const std::string &nick);
+		void							updateNickChange(const std::string &oldNick, const std::string &newNick);
 };

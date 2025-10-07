@@ -44,10 +44,13 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 
 	if (client->checkRegistrationComplete()) 
 	{
-		std::string msg = client->getNick() + 
-						 " changed his nickname to " + params[0] + "\r\n";
-		server->sendInfo(client, msg);
-		client->setNick(params[0]);
+		const std::string& oldNick = client->getNick();
+		const std::string& newNick = params[0];
+
+		std::string nickChangeMsg = ":" + client->getFullIdentifier() + " NICK :" + newNick + "\r\n";
+		server->sendToClient(client, nickChangeMsg);
+		notifyAndUpdateChannels(client, server, nickChangeMsg, oldNick, newNick);
+		client->setNick(newNick);
 		return ;
 	}
 	client->setNick(params[0]);
@@ -55,5 +58,30 @@ void NickCmd::execute(Server* server, Client* client, const std::vector<std::str
 	if (client->checkRegistrationComplete()) 
 	{
 		server->sendWelcomeMsg(client);
+	}
+}
+
+void	NickCmd::notifyAndUpdateChannels(Client *client, Server *server, const std::string &nickChangeMsg, const std::string &oldNick, const std::string &newNick)
+{
+	std::set<Client*> recipients;
+    for (const std::string& channelName : client->getChannels())
+	{
+        Channel* channel = server->getChannelByName(channelName);
+		if (!channel)
+			continue;
+		for (const std::string& memberNick : channel->getMembers())
+		{
+			if (memberNick != oldNick)
+			{
+				Client* member = server->getClientByNick(memberNick);
+				if (member)
+					recipients.insert(member);
+			}
+		}
+		channel->updateNickChange(oldNick, newNick);
+    }
+	for (Client* recipient : recipients)
+	{
+		server->sendToClient(recipient, nickChangeMsg);
 	}
 }
