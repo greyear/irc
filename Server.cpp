@@ -332,7 +332,7 @@ void	Server::processMessage(int clientFd, const std::string& message)
   	std::string cleanMessage;
     for (char c : message)
 	{
-        if ((c >= 32 && c <= 126) || c == '\r' || c == '\n')
+        if ((c >= 32 && c <= 126) || c == '\r' || c == '\n' || c == '\x01')
 		{
             cleanMessage += c;
         }
