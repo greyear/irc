@@ -107,8 +107,6 @@ time_t	Channel::getCreationTime() const
 	return (_creationTime);
 }
 
-////
-
 void	Channel::setTopicRestriction(bool topicRestrictionActive)
 {
 	_topicRestricted = topicRestrictionActive;

@@ -17,5 +17,5 @@ class PartCmd : public ACommand
 		bool	isChannelNameValid(const std::string& channelName);
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 		void	partChannel(Client* client, Channel* channel);
-		void	sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName,  const std::string& reason);
+		void	sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& reason);
 };

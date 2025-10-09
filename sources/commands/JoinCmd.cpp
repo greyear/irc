@@ -85,7 +85,7 @@ void JoinCmd::execute(Server* server, Client* client, const std::vector<std::str
 			break ;
 		}
 		joinChannel(client, channel);
-		sendJoinConfirmation(server, client, channel, channel->getName());
+		sendJoinConfirmation(server, client, channel);
 	}
 }
 
@@ -97,9 +97,9 @@ void	JoinCmd::joinChannel(Client* client, Channel* channel)
 		channel->addOperator(client->getNick());
 }
 
-void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName)
+void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* channel)
 {
-	std::string joinMsg = ":" + client->getFullIdentifier() + " JOIN " + channelName + "\r\n";
+	std::string joinMsg = ":" + client->getFullIdentifier() + " JOIN " + channel->getName() + "\r\n";
 	
 	for (const std::string& memberNick : channel->getMembers())
 	{
@@ -110,19 +110,19 @@ void JoinCmd::sendJoinConfirmation(Server* server, Client* client, Channel* chan
 
 	if (!channel->getTopic().empty())
 	{
-		std::string topicMsg = ":" + server->getServerName() + " " + RPL_TOPIC + " " + client->getNick() + " " + channelName + " :" + channel->getTopic();
+		std::string topicMsg = ":" + server->getServerName() + " " + RPL_TOPIC + " " + client->getNick() + " " + channel->getName() + " :" + channel->getTopic();
 		server->sendToClient(client, topicMsg);
 	}
 	if (channel->getTopicTime() != 0)
 	{
-		std::string topicWhoMsg =  ":" + server->getServerName() + " " + RPL_TOPICWHOTIME + " " + client->getNick() + " " + channelName + " "
+		std::string topicWhoMsg =  ":" + server->getServerName() + " " + RPL_TOPICWHOTIME + " " + client->getNick() + " " + channel->getName() + " "
 								+ channel->getTopicSetter() + " " + std::to_string(channel->getTopicTime());
 		server->sendToClient(client, topicWhoMsg);
 	}
-	sendMembersList(server, client, channel, channelName);
+	sendMembersList(server, client, channel);
 }
 
-void JoinCmd::sendMembersList(Server* server, Client* client, Channel* channel, const std::string& channelName)
+void JoinCmd::sendMembersList(Server* server, Client* client, Channel* channel)
 {
 	std::string list;
 	bool firstMember = true;
@@ -136,8 +136,8 @@ void JoinCmd::sendMembersList(Server* server, Client* client, Channel* channel, 
 			list += "@";
 		list += memberNick;
 	}
-	std::string listMsg = ":" + server->getServerName() + " " + RPL_NAMREPLY + " " + client->getNick() + " = " + channelName + " :" + list;
+	std::string listMsg = ":" + server->getServerName() + " " + RPL_NAMREPLY + " " + client->getNick() + " = " + channel->getName() + " :" + list;
 	server->sendToClient(client, listMsg);
-	std::string listEndMsg = ":" + server->getServerName() + " " + RPL_ENDOFNAMES + " " + client->getNick() + " " + channelName + " :End of /NAMES list";
+	std::string listEndMsg = ":" + server->getServerName() + " " + RPL_ENDOFNAMES + " " + client->getNick() + " " + channel->getName() + " :End of /NAMES list";
 	server->sendToClient(client, listEndMsg);
 }

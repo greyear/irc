@@ -47,7 +47,6 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 	{
 		if (channelName == client->getNick())
 		{
-			//by default we're saying your modes are + and nothing!
 			std::string userModesMsg = ":" + server->getServerName() + " " + RPL_UMODEIS + " " + client->getNick() + " +" + "\r\n";
 			server->sendToClient(client, userModesMsg);
 		}
@@ -162,8 +161,6 @@ bool	ModeCmd::validateModestring(Server* server, Client* client, Channel* channe
 
 bool	ModeCmd::executeLetter(Server* server, Client* client, Channel* channel, char mode, char sign, std::string& arg)
 {
-
-	//need to check if arg is empty
 	switch (mode)
 	{
 		case 'o':
@@ -208,10 +205,9 @@ bool ModeCmd::handleK(Server* server, Client* client, Channel* channel, char sig
 {
 	(void)server;
 	(void)client;
-	//maybe -k with no args should work
 	if (sign == '+')
 	{
-		if (key.empty()) //some other checks
+		if (key.empty())
 			return (false);
 		if (key.length() > MAX_CHANNEL_KEY)
 			key = key.substr(0, 23);
@@ -310,7 +306,7 @@ void	ModeCmd::sendModeConfirmations(Server* server, Client* client, Channel* cha
 			if (!change.param.empty())
 				params.push_back(change.param);
 		}
-		else //minus
+		else
 		{
 			minusModes += change.mode;
 			if (change.mode == 'k')

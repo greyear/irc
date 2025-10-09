@@ -165,11 +165,6 @@ bool Client::isBufferTooLarge() const
 	return _readBuffer.length() > MAX_BUFFER_SIZE;
 }
 
-void Client::clearBuffer()
-{
-	_readBuffer.clear();
-}
-
 int	Client::flushWriteBuffer()
 {
 	if (_writeBuffer.empty())

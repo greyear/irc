@@ -62,7 +62,7 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 		server->sendError(client, ERR_NOTONCHANNEL, channelName + " :You're not on that channel");
 		return;
 	}
-	if (!channel->isOperator(client->getNick())) //check how it works on real things! maybe not right!
+	if (!channel->isOperator(client->getNick()))
 	{
 		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
@@ -78,7 +78,7 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 	sendInviteConfirmations(server, client, invitee, channel);
 }
 
-void InviteCmd::sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel) //do we need channelName there in other methods
+void InviteCmd::sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel)
 {
 	std::string msgToInviter = ":" + server->getServerName() + " " + RPL_INVITING + " " + inviter->getNick() + " " + invitee->getNick() + " " + channel->getName() + "\r\n";
 	server->sendToClient(inviter, msgToInviter);

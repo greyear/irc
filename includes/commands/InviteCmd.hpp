@@ -19,23 +19,3 @@ class InviteCmd : public ACommand
 		void	sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel);
 
 };
-		
-/*
-/invite nickname #channel
-
-not enough parameters - ERR_NEEDMOREPARAMS!
-no channel in input - ERR_NOSUCHCHANNEL!
-inviter not in channel - ERR_NOTONCHANNEL!
-inviter is not channel operator && channel is invite only - ERR_CHANOPRIVSNEEDED!
-invitee already in channel - ERR_USERONCHANNEL!
-invitee does not exist - ERR_NOSUCHNICK!
-invitee is already invited - ERR_USERALREADYINVITED!
-
-invitee is successfully invited - RPL_INVITING to inviter!
-":dan-!d@localhost INVITE Wiz #test"
-invitee receives an INVITE message
-":inviter!user@host INVITE target :#channel"
-
-
-
-*/

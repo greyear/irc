@@ -3,22 +3,15 @@
 volatile sig_atomic_t Server::_sigTermination = 0;
 std::string	addCRLF(const std::string& msg);
 
-Server::Server(int portNumber, std::string const &password): _port(0), _pass("pass"), _fd(-1), _epollFd(-1)
+Server::Server(int portNumber, std::string const &password): _port(portNumber), _pass(password), _fd(-1), _epollFd(-1)
 {
-	//validate port 
-	//validate password
-
-	_port = portNumber;
-	_pass = password;
 	_serverName = "hive.irc.net";
-	 std::cout << "_port: " << _port << std::endl;
 	signal(SIGINT, sigHandler);
 	signal(SIGTERM, sigHandler);
 }
 
 Server::~Server()
 {
-	std::cout << "we called the destructor" << std::endl;
 	if (_fd != -1)
 	{
 		close(_fd);
@@ -34,7 +27,7 @@ Server::~Server()
 		if (client.second->getFd() != -1)
 			close(client.second->getFd());
 	}
-	_clients.clear(); //think about that
+	_clients.clear();
 	_channels.clear();
 	signal(SIGINT, SIG_DFL);
 	signal(SIGTERM, SIG_DFL);
@@ -103,7 +96,6 @@ void Server::addEpollOut(int fd)
 	ev.data.fd = fd;
 	
 	epoll_ctl(_epollFd, EPOLL_CTL_MOD, fd, &ev);
-	//std::cout << "added epollout" << std::endl;
 }
 
 void Server::removeEpollOut(int fd)
@@ -135,12 +127,10 @@ void	Server::createSocket()
 	if (_fd == -1)
 		throw std::system_error(errno, std::system_category(), "socket");
 
-// Set socket options
 	int opt = 1;
 	setsockopt(_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt));
 	setNonBlocking(_fd);
 	
-	// Bind and listen
 	struct sockaddr_in addr;
 	addr.sin_family = AF_INET;
 	addr.sin_addr.s_addr = INADDR_ANY;
@@ -174,8 +164,7 @@ void Server::acceptNewClient()
 	setNonBlocking(clientFd);
 	std::string ip = inet_ntoa(client_addr.sin_addr);
 
-	// Add client to epoll for reading
-	addToEpoll(clientFd, EPOLLIN | EPOLLET); // Edge-triggered mode
+	addToEpoll(clientFd, EPOLLIN | EPOLLET);
 	
 	_clients[clientFd] = std::make_unique<Client>(clientFd);
 	_clients[clientFd].get()->setHostName(ip);
@@ -230,13 +219,13 @@ void	Server::handleMaxClientsError()
 
 	std::string ip = inet_ntoa(client_addr.sin_addr);
 	const std::string errorMsg = "ERROR :Closing Link: " + ip + " (Server full - " + 
-        						std::to_string(MAX_CLIENTS) + " clients maximum)\r\n";
-    
-    ssize_t sent = send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
-    if (sent == -1)
-    {
-        std::cerr << "Failed to send rejection message to " << ip << std::endl;
-    }
+								std::to_string(MAX_CLIENTS) + " clients maximum)\r\n";
+	
+	ssize_t sent = send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
+	if (sent == -1)
+	{
+		std::cerr << "Failed to send error message to " << ip << std::endl;
+	}
 	close(clientFd);
 }
 
@@ -281,17 +270,16 @@ void Server::handleClientRead(int clientFd)
 		while (client->hasCompleteMessage())
 		{
 			std::string message = client->extractNextMessage();
-			//std::cout << message <<  " :  The message" << std::endl;
 			if (!message.empty())
 				processMessage(clientFd, message);
 			if (_clients.find(clientFd) == _clients.end())
-        		return; 
+				return; 
 		}
 		
 		if (client->isBufferTooLarge())
 		{
-			std::cerr << "Buffer overflow reached: disconnecting client " << clientFd << std::endl; //TODO: change to nick later when we have getters
-			disconnectClient(clientFd); //TODO: check if nothing was allocated
+			std::cerr << "Buffer overflow reached: disconnecting client " << clientFd << std::endl;
+			disconnectClient(clientFd);
 			return;
 		}
 	}
@@ -299,22 +287,20 @@ void Server::handleClientRead(int clientFd)
 	{
 		if (disconnectClient(clientFd))
 			std::cout << "Client " << clientFd << " closed connection" << std::endl;
-		else
-			std::cout << "disconnection failed in bytesrecieved = 0 " << std::endl;
 	}
 	else if (bytesRecieved == -1)
 	{
 		if (errno == EAGAIN || errno == EWOULDBLOCK)
 			return;
 		else if (errno == ETIMEDOUT)
-        {
+		{
 			if (disconnectClient(clientFd))
-				std::cout << "Client " << clientFd << " connection timed out" << std::endl;
-        }
+				std::cerr << "Client " << clientFd << " connection timed out" << std::endl;
+		}
 		else if (errno == ECONNRESET)
 		{
 			if (disconnectClient(clientFd))
-				std::cout << "Client " << clientFd << " connection reset" << std::endl;
+				std::cerr << "Client " << clientFd << " connection reset" << std::endl;
 		}
 		else
 		{
@@ -357,20 +343,20 @@ void	Server::processMessage(int clientFd, const std::string& message)
 		return ;
 	
   	std::string cleanMessage;
-    for (char c : message)
+	for (char c : message)
 	{
-        if ((c >= 32 && c <= 126) || c == '\r' || c == '\n' || c == '\x01')
+		if ((c >= 32 && c <= 126) || c == '\r' || c == '\n' || c == '\x01')
 		{
-            cleanMessage += c;
-        }
-    }
+			cleanMessage += c;
+		}
+	}
 
 	std::istringstream iss(cleanMessage);
 	std::string cmdName;
 	iss >> cmdName;
 
 	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
-	if (cmdName == "CAP" || cmdName == "WHO") //TODO: remove mode from here!
+	if (cmdName == "CAP" || cmdName == "WHO")
 		return ;
 
 	std::vector<std::string> params;
@@ -450,16 +436,11 @@ void	Server::sendToClient(Client *client, const std::string& msg)
 	std::string fullMsg = addCRLF(msg);
 	client->appendToWriteBuffer(fullMsg);
 
-	/*  TODO: do we need to check if buffer empty?
-		bool hasOutputData() const {
-        return !_outputBuffer.empty();
-    }*/
-
 	if (client->hasUnsentData() && !client->isEpollOutActive())
 	{
-        addEpollOut(client->getFd());
+		addEpollOut(client->getFd());
 		client->setIsEpollOutActive(true);
-    }
+	}
 }
 
 void Server::start() 
@@ -488,7 +469,7 @@ void Server::start()
 			}
 			else if (events[i].events & (EPOLLHUP | EPOLLERR))
 			{
-			   disconnectClient(fd);
+				disconnectClient(fd);
 			}
 		}
 	}

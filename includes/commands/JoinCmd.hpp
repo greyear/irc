@@ -17,6 +17,6 @@ class JoinCmd : public ACommand
 		bool	isChannelNameValid(const std::string& channelName);
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 		void	joinChannel(Client* client, Channel* channel);
-		void	sendJoinConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName);
-		void	sendMembersList(Server* server, Client* client, Channel* channel, const std::string& channelName);
+		void	sendJoinConfirmation(Server* server, Client* client, Channel* channel);
+		void	sendMembersList(Server* server, Client* client, Channel* channel);
 };

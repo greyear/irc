@@ -89,18 +89,18 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 			reason += multiWordParam;
 		}
 		if (reason.empty())
-			reason = targetNick; // TODO: Default = kicker's nick or target's nick ?
+			reason = targetNick;
 		if (reason.length() > MAX_KICK_REASON)
 		{
 			reason = reason.substr(0, MAX_KICK_REASON);
 		}
-		sendKickConfirmation(server, client, channel, channelName, targetNick, reason);
+		sendKickConfirmation(server, client, channel, channelName, targetNick);
 	}
 }
 
-void	KickCmd::sendKickConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName, const std::string &targetNick, const std::string& reason)
+void	KickCmd::sendKickConfirmation(Server* server, Client* client, Channel* channel, const std::string &targetNick, const std::string& reason)
 {
-	std::string kickMessage = ":" + client->getFullIdentifier() + " KICK " + channelName + " " + targetNick + " :" + reason;
+	std::string kickMessage = ":" + client->getFullIdentifier() + " KICK " + channel->getName() + " " + targetNick + " :" + reason;
 
 	for (const std::string& memberNick : channel->getMembers())
 	{

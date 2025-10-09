@@ -42,10 +42,10 @@ class Client
 		uint							getChannelLimit() const;
 		const std::set<std::string>&	getChannels() const;
 		std::string						getFullIdentifier() const;
-
-		bool							isRegistered() const;
+		bool							isRegistered() const; //never used for now
 		bool							hasUnsentData() const;
 		bool							isEpollOutActive() const;
+
 		void							setNick(const std::string& nick);
 		void							setUser(const std::string& user);
 		void							setRealName(const std::string& realName);
@@ -55,14 +55,14 @@ class Client
 		void							setHasNick(bool received);
 		void							setRegistered();
 		void							setIsEpollOutActive(bool value);
-		bool							checkRegistrationComplete();
 
+		bool							checkRegistrationComplete();
 		void							appendToReadBuffer(const char* data, size_t length);
 		void							appendToWriteBuffer(const std::string& msg);
 		bool							hasCompleteMessage() const;
 		std::string						extractNextMessage();
+
 		bool							isBufferTooLarge() const;
-		void							clearBuffer();
 		int								flushWriteBuffer();
 
 		bool							isInChannel(const std::string& channelName) const;

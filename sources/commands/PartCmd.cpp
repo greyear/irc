@@ -92,7 +92,7 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 			continue ;
 		}
 		
-		sendPartConfirmation(server, client, channel, channelName, reason);
+		sendPartConfirmation(server, client, channel, reason);
 		partChannel(client, channel);
 		if (channel->getMembers().empty())
 			server->removeChannel(channelName);
@@ -106,9 +106,9 @@ void	PartCmd::partChannel(Client* client, Channel* channel)
 
 }
 
-void	PartCmd::sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& channelName, const std::string& reason)
+void	PartCmd::sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& reason)
 {
-	std::string partMsg = ":" + client->getFullIdentifier() + " PART " + channelName;
+	std::string partMsg = ":" + client->getFullIdentifier() + " PART " + channel->getName();
 	if (!reason.empty())
 		partMsg += " :" + reason;
 	partMsg += "\r\n";

@@ -2,7 +2,7 @@
 
 #include <iostream>
 #include <sstream>
-#include <algorithm> //?
+#include <algorithm>
 #include <map>
 #include <vector>
 #include <sys/socket.h>
@@ -12,7 +12,6 @@
 #include <fcntl.h>
 #include <arpa/inet.h>
 #include <memory>
-#include <signal.h> //check if we need both
 #include <csignal>
 #include "Client.hpp"
 #include "CmdList.hpp"
@@ -22,25 +21,25 @@
 class Server
 {
 	private:
-		int								_port; //?
-		std::string						_pass;
-		int								_fd;
-		std::string						_serverName;
-		std::map<int, std::unique_ptr<Client>> _clients; //put some limits (42)
-		std::map<std::string, std::unique_ptr<Channel>> _channels;
-		int								_epollFd;
-		CmdList							_cmdList;
-		static volatile sig_atomic_t	_sigTermination;
+		int												_port;
+		std::string										_pass;
+		int												_fd;
+		std::string										_serverName;
+		std::map<int, std::unique_ptr<Client>>			_clients;
+		std::map<std::string, std::unique_ptr<Channel>>	_channels;
+		int												_epollFd;
+		CmdList											_cmdList;
+		static volatile sig_atomic_t					_sigTermination;
 	public:
 		Server(int portNumber, std::string const &password);
 		~Server();
 
-		std::string getPass() const;
-		const std::string& getServerName() const;
-		Client* getClientByNick(const std::string& nick) const;
-		Channel* getChannelByName(const std::string& name) const;
-		const std::map<std::string, std::unique_ptr<Channel>>& getChannels() const;
-		const std::map<int, std::unique_ptr<Client>>& getClients() const;
+		std::string												getPass() const;
+		const std::string&										getServerName() const;
+		Client*													getClientByNick(const std::string& nick) const;
+		Channel*												getChannelByName(const std::string& name) const;
+		const std::map<std::string, std::unique_ptr<Channel>>&	getChannels() const;
+		const std::map<int, std::unique_ptr<Client>>&			getClients() const;
 		
 		void	createSocket();
 		void	start();
@@ -60,13 +59,12 @@ class Server
 		//channels
 		Channel* createNewChannel(const std::string& name);
 		Channel* getOrCreateChannel(const std::string& name);
-
+		void	removeChannel(const std::string& name);
 
 		//handling recv and send
 		void	handleClientRead(int clientFd);
 		void	handleClientWrite(int clientFd);
 		void	processMessage(int clientFd, const std::string& message);
-		void	removeChannel(const std::string& name);
 
 		//sending messages
 		void	sendWelcomeMsg(Client *client);

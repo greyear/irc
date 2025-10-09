@@ -46,7 +46,6 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 		std::string badUser = "";
 		for (size_t i = 0; i < params.size() - 2; ++i)
 		{
-			//std::cout << badUser
 			if (i != 0)
 				badUser = badUser + ' ';
 			badUser = badUser + params[i];
@@ -55,7 +54,7 @@ void UserCmd::execute(Server* server, Client* client, const std::vector<std::str
 		return;
 	}
 
-	std::string userName; //TODO: recheck about 0 and *
+	std::string userName;
 	userName = params[0];
 	std::string realName;
 	if (params.size() == 4 && multiWordParam.empty())
