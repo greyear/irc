@@ -356,11 +356,20 @@ void	Server::processMessage(int clientFd, const std::string& message)
 	if (!client)
 		return ;
 	
-	std::istringstream iss(message);
+  	std::string cleanMessage;
+    for (char c : message)
+	{
+        if ((c >= 32 && c <= 126) || c == '\r' || c == '\n' || c == '\x01')
+		{
+            cleanMessage += c;
+        }
+    }
+
+	std::istringstream iss(cleanMessage);
 	std::string cmdName;
 	iss >> cmdName;
-	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
 
+	std::transform(cmdName.begin(), cmdName.end(), cmdName.begin(), ::toupper);
 	if (cmdName == "CAP" || cmdName == "WHO") //TODO: remove mode from here!
 		return ;
 
@@ -380,7 +389,6 @@ void	Server::processMessage(int clientFd, const std::string& message)
 			multiWordParam += additionalWords;
 		}
 	}
-
 	ACommand* command = _cmdList.getCommand(cmdName);
 	if (!command)
 	{
@@ -432,11 +440,6 @@ void	Server::sendError(Client *client, const std::string& errCode, const std::st
 {
 	std::string error = ":" + _serverName + " " + errCode + " " + client->getNick() + " " + msg + "\r\n";
 	sendToClient(client , error);
-}
-
-void	Server::sendInfo(Client *client, const std::string& msg)
-{
-	sendToClient(client, msg); //why do we even need that?
 }
 
 void	Server::sendToClient(Client *client, const std::string& msg)
