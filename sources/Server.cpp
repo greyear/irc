@@ -159,6 +159,11 @@ void	Server::createSocket()
 
 void Server::acceptNewClient()
 {
+	if (_clients.size() >= MAX_CLIENTS)
+	{
+		handleMaxClientsError();
+		return ;
+	}
 	struct sockaddr_in client_addr;
 	socklen_t addr_len = sizeof(client_addr);
 	
@@ -174,7 +179,7 @@ void Server::acceptNewClient()
 	
 	_clients[clientFd] = std::make_unique<Client>(clientFd);
 	_clients[clientFd].get()->setHostName(ip);
-	std::cout << "New client connected: fd=" << clientFd << std::endl; //delete!
+	std::cout << "New client connected: fd=" << clientFd << std::endl; //TODO: delete!
 }
 
 bool	Server::isNicknameTaken(const std::string& newNick)
@@ -213,6 +218,28 @@ bool	Server::removeClient(Client *client)
 	}
 	return disconnectClient(clientFd);
 }
+
+void	Server::handleMaxClientsError()
+{
+	struct sockaddr_in client_addr;
+	socklen_t addr_len = sizeof(client_addr);
+	
+	int clientFd = accept(_fd, (struct sockaddr*)&client_addr, &addr_len);
+	if (clientFd == -1)
+		throw std::system_error(errno, std::system_category(), "accept");
+
+	std::string ip = inet_ntoa(client_addr.sin_addr);
+	const std::string errorMsg = "ERROR :Closing Link: " + ip + " (Server full - " + 
+        						std::to_string(MAX_CLIENTS) + " clients maximum)\r\n";
+    
+    ssize_t sent = send(clientFd, errorMsg.c_str(), errorMsg.length(), 0);
+    if (sent == -1)
+    {
+        std::cerr << "Failed to send rejection message to " << ip << std::endl;
+    }
+	close(clientFd);
+}
+
 
 Channel* Server::createNewChannel(const std::string& name)
 {
@@ -257,6 +284,8 @@ void Server::handleClientRead(int clientFd)
 			//std::cout << message <<  " :  The message" << std::endl;
 			if (!message.empty())
 				processMessage(clientFd, message);
+			if (_clients.find(clientFd) == _clients.end())
+        		return; 
 		}
 		
 		if (client->isBufferTooLarge())

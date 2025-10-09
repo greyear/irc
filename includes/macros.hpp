@@ -1,23 +1,28 @@
 #pragma once
 
-#define MAX_EVENTS			128
-#define MAX_QUEUE			128
-#define MAX_CLIENTS			1000
-#define BUFFER_SIZE			1024
-#define MAX_BUFFER_SIZE		4096
-#define FLUSH_SUCCESS		0
-#define FLUSH_ERROR			-1
-#define FLUSH_PARTIAL		1
-#define FLUSH_LATER			2
-#define	CHANNEL_LIMIT		42
+// Buffer and size limits
+constexpr int MAX_EVENTS = 128;
+constexpr int MAX_QUEUE = 128;
+constexpr size_t BUFFER_SIZE = 1024;
+constexpr size_t MAX_BUFFER_SIZE = 4096;
+constexpr size_t CHANNEL_LIMIT = 42;
+constexpr size_t MAX_CLIENTS = 1000;
 
-constexpr size_t MAX_TOPIC_LENGTH = 300; //TODO ^do we need types for the above?
+// Flush status codes
+constexpr int FLUSH_SUCCESS = 0;
+constexpr int FLUSH_ERROR = -1;
+constexpr int FLUSH_PARTIAL = 1;
+constexpr int FLUSH_LATER = 2;
+
+// Message length limits
+constexpr size_t MAX_TOPIC_LENGTH = 300;
 constexpr size_t MAX_KICK_REASON  = 200;
 constexpr size_t MAX_PART_REASON  = 200;
 constexpr size_t MAX_QUIT_REASON  = 200;
 constexpr size_t MAX_PRIVMSG_TXT  = 400;
 constexpr size_t MAX_CHANNEL_KEY  = 23;
 
+// IRC reply codes
 #define	RPL_WELCOME			"001"
 #define	RPL_YOURHOST		"002"
 #define	RPL_CREATED			"003"

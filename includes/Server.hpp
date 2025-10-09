@@ -55,6 +55,7 @@ class Server
 		bool	disconnectClient(int clientFd);
 		bool	isNicknameTaken(const std::string& newNick);
 		bool	removeClient(Client *client);
+		void	handleMaxClientsError();
 
 		//channels
 		Channel* createNewChannel(const std::string& name);
