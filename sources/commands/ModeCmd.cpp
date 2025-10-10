@@ -70,7 +70,6 @@ void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::str
 			return;
 		if (!channel->isOperator(client->getNick()))
 		{
-			std::cout << "MODE cmd is executed for channel" << channel->getName() + ", params are: " + params[1] << std::endl;
 			server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 			return;
 		}

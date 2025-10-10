@@ -43,15 +43,15 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 		}
 		if (!multiWordParam.empty())
 		{
-            if (!message.empty())
+			if (!message.empty())
 				message += " ";
-            message += multiWordParam;
-        }
+			message += multiWordParam;
+		}
 	}
 	else if (!multiWordParam.empty())
 	{
-        message = multiWordParam;
-    }
+		message = multiWordParam;
+	}
 	else
 	{
 		server->sendError(client, ERR_NOTEXTTOSEND, " :No text to send");
@@ -65,9 +65,7 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 	}
 	if (message.length() > MAX_PRIVMSG_TXT)
 	{
-		std::cout << "truncating PRIVMSG with length : " << message.length() << std::endl;
-   		message = message.substr(0, MAX_PRIVMSG_TXT);
-		std::cout << "truncated PRIVMSG length: " << message.length() << message << std::endl;
+		message = message.substr(0, MAX_PRIVMSG_TXT);
 	}
 	for (const std::string& target : targets)
 	{

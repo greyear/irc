@@ -64,7 +64,6 @@ void TopicCmd::execute(Server* server, Client* client, const std::vector<std::st
     }
 	if (channel->getTopicRestricted() && !channel->isOperator(clientNick))
 	{
-		std::cout << "TOPIC cmd is executed for channel" << channel->getName() << std::endl;
 		server->sendError(client, ERR_CHANOPRIVSNEEDED, channelName + " :You're not channel operator");
 		return;
 	}

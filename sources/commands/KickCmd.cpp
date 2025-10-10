@@ -72,7 +72,8 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		}
 		
 		channel->removeMember(targetNick);
-		channel->removeOperator(targetNick); 
+		channel->removeOperator(targetNick);
+		channel->removeInvited(targetNick);
 		targetClient->leaveChannel(channelName);
 
 		std::string reason;
@@ -94,7 +95,7 @@ void	KickCmd::execute(Server* server, Client* client, const std::vector<std::str
 		{
 			reason = reason.substr(0, MAX_KICK_REASON);
 		}
-		sendKickConfirmation(server, client, channel, channelName, targetNick);
+		sendKickConfirmation(server, client, channel, targetNick, reason);
 	}
 }
 

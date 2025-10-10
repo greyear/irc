@@ -102,8 +102,9 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 void	PartCmd::partChannel(Client* client, Channel* channel)
 {
 	channel->removeMember(client->getNick());
+	channel->removeOperator(client->getNick());
+	channel->removeInvited(client->getNick());
 	client->leaveChannel(channel->getName());
-
 }
 
 void	PartCmd::sendPartConfirmation(Server* server, Client* client, Channel* channel, const std::string& reason)
