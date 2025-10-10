@@ -11,6 +11,7 @@ class NickCmd : public ACommand
 	public:
 		NickCmd();
 		virtual ~NickCmd();
+		
 		bool needsRegistration() const override;
 		bool isNickValid(const std::string& nick);
 		void execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;

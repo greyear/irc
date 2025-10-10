@@ -2,7 +2,7 @@
 
 Client::Client(int fd):
 	_fd(fd), _nick(""), _user(""), _hasUnsentData(false), _isEpollOutActive(false),
-	_hasPass(false), _hasUser(false), _hasNick(false), _registered(false), _channelLimit(CHANNEL_LIMIT)
+	_hasPass(false), _hasUser(false), _hasNick(false), _channelLimit(CHANNEL_LIMIT)
 {
 
 }
@@ -67,11 +67,6 @@ std::string	Client::getFullIdentifier() const
 	return (_nick + "!" + _user + "@" + _hostName);
 }
 
-bool	Client::isRegistered() const
-{
-	return(_registered);
-}
-
 bool Client::hasUnsentData() const
 {
     return _hasUnsentData;
@@ -115,11 +110,6 @@ void	Client::setHasUser(bool received)
 void	Client::setHasNick(bool received)
 {
 	_hasNick = received;
-}
-
-void	Client::setRegistered()
-{
-	_registered = true;
 }
 
 void	Client::setIsEpollOutActive(bool value)

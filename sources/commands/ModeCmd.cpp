@@ -7,7 +7,7 @@ ModeCmd::ModeChange::ModeChange(char m, char s, const std::string& p): mode(m), 
 	
 }
 
-ModeCmd::ModeCmd(): _pattern("^[#&][^\\x00-\\x1F\\x7F\\s,:]{1,50}$")
+ModeCmd::ModeCmd()
 {
 
 }
@@ -20,11 +20,6 @@ ModeCmd::~ModeCmd()
 bool ModeCmd::needsRegistration() const
 {
 	return true;
-}
-
-bool ModeCmd::isChannelNameValid(const std::string& channelName)
-{
-	return std::regex_match(channelName, _pattern);
 }
 
 void	ModeCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)

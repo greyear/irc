@@ -4,7 +4,7 @@
 
 std::vector<std::string> splitTargets(const std::string& targets);
 
-PartCmd::PartCmd(): _pattern("^[#&][^\\x00-\\x1F\\x7F\\s,:]{1,50}$")
+PartCmd::PartCmd()
 {
 
 }
@@ -17,11 +17,6 @@ PartCmd::~PartCmd()
 bool PartCmd::needsRegistration() const
 {
 	return (true);
-}
-
-bool PartCmd::isChannelNameValid(const std::string& channelName)
-{
-	return std::regex_match(channelName, _pattern);
 }
 
 void	PartCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
@@ -73,11 +68,6 @@ void	PartCmd::execute(Server* server, Client* client, const std::vector<std::str
 	for (size_t i = 0; i < channels.size(); ++i)
 	{
 		const std::string& channelName = channels[i];
-		if (!isChannelNameValid(channelName))
-		{
-			server->sendError(client, ERR_BADCHANMASK, channelName + " :Bad Channel Mask");
-			continue ;
-		}
 
 		Channel* channel = server->getChannelByName(channelName);
 		if (!channel)

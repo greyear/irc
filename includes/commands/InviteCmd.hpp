@@ -17,5 +17,4 @@ class InviteCmd : public ACommand
 		bool	isChannelNameValid(const std::string& channelName);
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 		void	sendInviteConfirmations(Server* server, Client* inviter, Client* invitee, Channel* channel);
-
 };

@@ -12,6 +12,7 @@ class UserCmd : public ACommand
 	public:
 		UserCmd();
 		virtual ~UserCmd();
+		
 		bool needsRegistration() const override;
 		bool isUserNameValid(const std::string& userName);
 		bool isRealNameValid(const std::string& realName);

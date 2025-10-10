@@ -25,7 +25,6 @@ class Client
 		bool					_hasPass;
 		bool					_hasUser;
 		bool					_hasNick;
-		bool					_registered; //TODO: check if we need that
 		uint					_channelLimit;
 	public:
 		Client(int fd);
@@ -42,7 +41,6 @@ class Client
 		uint							getChannelLimit() const;
 		const std::set<std::string>&	getChannels() const;
 		std::string						getFullIdentifier() const;
-		bool							isRegistered() const; //never used for now
 		bool							hasUnsentData() const;
 		bool							isEpollOutActive() const;
 
@@ -53,7 +51,6 @@ class Client
 		void							setHasPass(bool received);
 		void							setHasUser(bool received);
 		void							setHasNick(bool received);
-		void							setRegistered();
 		void							setIsEpollOutActive(bool value);
 
 		bool							checkRegistrationComplete();

@@ -23,7 +23,6 @@ ACommand* CmdList::getCommand(const std::string& name) const
 	return (it != _commands.end()) ? it->second.get() : nullptr;
 }
 
-
 CmdList::~CmdList()
 {
 	

@@ -3,12 +3,10 @@
 #include <iostream>
 #include "ACommand.hpp"
 #include "../Channel.hpp"
-#include <regex>
 
 class ModeCmd : public ACommand
 {
 	private:
-		std::regex _pattern;
 		struct ModeChange
 		{
 			char mode;
@@ -21,7 +19,6 @@ class ModeCmd : public ACommand
 		virtual ~ModeCmd();
 
 		bool	needsRegistration() const override;
-		bool	isChannelNameValid(const std::string& channelName);
 		bool	validateModestring(Server* server, Client* client, Channel* channel, const std::string& modestring);
 		void	execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam) override;
 		void	executeNoArgs(Server* server, Client* client, Channel* channel);
