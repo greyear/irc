@@ -50,6 +50,12 @@ void InviteCmd::execute(Server* server, Client* client, const std::vector<std::s
 		server->sendError(client, ERR_NOSUCHNICK, inviteeName + " :No such nick/channel");
 		return;
 	}
+	if (!invitee->checkRegistrationComplete())
+	{
+    	server->sendError(client, ERR_NOSUCHNICK, inviteeName + " :No such nick/channel");
+    	return;
+	}
+	
 	Channel* channel = server->getChannelByName(channelName);
 	if (!channel)
 	{

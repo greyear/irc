@@ -24,6 +24,13 @@ bool NickCmd::isNickValid(const std::string& nick)
 void NickCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
 	(void)multiWordParam;
+
+	if (!client->checkRegistrationComplete() && !client->getHasPass())
+	{
+		server->sendError(client, ERR_NOTREGISTERED, ":PASS command must be sent before NICK/USER");
+		return;
+	}
+
 	if (params.empty())
 	{
 		server->sendError(client, ERR_NEEDMOREPARAMS, ":No nickname given");

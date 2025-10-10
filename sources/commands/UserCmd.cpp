@@ -30,6 +30,11 @@ bool UserCmd::isRealNameValid(const std::string& realName)
 
 void UserCmd::execute(Server* server, Client* client, const std::vector<std::string>& params, const std::string& multiWordParam)
 {
+	if (!client->getHasPass())
+	{
+		server->sendError(client, ERR_NOTREGISTERED, ":PASS command must be sent before NICK/USER");
+		return;
+	}
 	if (client->checkRegistrationComplete()) 
 	{
 		server->sendError(client, ERR_ALREADYREGISTRED, ":You may not reregister");

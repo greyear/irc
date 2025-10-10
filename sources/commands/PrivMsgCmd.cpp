@@ -77,11 +77,11 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 				server->sendError(client, ERR_NOSUCHNICK, target + " :No such nick/channel");
 				continue;
 			}
-				if (!targetChan->isMember(client->getNick()))
-				{
-					server->sendError(client, ERR_CANNOTSENDTOCHAN, target + " :Cannot send to channel");
-					continue;
-				}
+			if (!targetChan->isMember(client->getNick()))
+			{
+				server->sendError(client, ERR_CANNOTSENDTOCHAN, target + " :Cannot send to channel");
+				continue;
+			}
 			std::string channelMsg = ":" + client->getFullIdentifier() + " PRIVMSG " + target + " :" + message;
 			sendToChanMembers(targetChan, channelMsg, client, server);
 		}
@@ -93,7 +93,11 @@ void PrivMsgCmd::execute(Server* server, Client* client, const std::vector<std::
 				server->sendError(client, ERR_NOSUCHNICK, target + " :No such nick/channel");
 				continue;
 			}
-			
+			if (!targetClient->checkRegistrationComplete())
+    		{
+       			server->sendError(client, ERR_NOSUCHNICK, target + " :No such nick/channel");
+        		continue;
+    		}
 			std::string privMsg = ":" + client->getFullIdentifier() + " PRIVMSG " + target + " :" + message;
 			server->sendToClient(targetClient, privMsg);
 		}

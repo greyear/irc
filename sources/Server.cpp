@@ -168,7 +168,7 @@ void Server::acceptNewClient()
 	
 	_clients[clientFd] = std::make_unique<Client>(clientFd);
 	_clients[clientFd].get()->setHostName(ip);
-	std::cout << "New client connected: fd=" << clientFd << std::endl; //TODO: delete!
+	std::cout << "New client connected: fd=" << clientFd << std::endl;
 }
 
 bool	Server::isNicknameTaken(const std::string& newNick)
@@ -261,7 +261,7 @@ void Server::handleClientRead(int clientFd)
 	if (it == _clients.end())
 	{
 		std::cerr << "Client not found for read: " << clientFd << std::endl;
-		return; //TODO: check what if client doesn't exist yet or gets deleted before calling this
+		return;
 	}
 	Client* client = it->second.get();
 	while ((bytesRecieved = recv(clientFd, buffer, BUFFER_SIZE, MSG_DONTWAIT)) > 0)
@@ -275,7 +275,8 @@ void Server::handleClientRead(int clientFd)
 			if (_clients.find(clientFd) == _clients.end())
 				return; 
 		}
-		
+		if (_clients.find(clientFd) == _clients.end())
+			return;
 		if (client->isBufferTooLarge())
 		{
 			std::cerr << "Buffer overflow reached: disconnecting client " << clientFd << std::endl;
