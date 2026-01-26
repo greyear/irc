@@ -23,7 +23,7 @@ Run
 
 Connect with Irssi
 ```
-irssi -c <server_address> -p <port> -k <password>
+irssi -c <server_address> -p <port> -n <name> -w <password>
 ```
 
 ## Server Commands
@@ -31,11 +31,13 @@ irssi -c <server_address> -p <port> -k <password>
 These are the main commands available to all users:
 | Command | Description |
 | ------ | ----------- |
-| `JOIN <#channel>`   | Join or create a channel |
-| `PART <#channel>` | Leave a channel |
-| `PRIVMSG <nickname> :<message>`    | Send a private message to a user |
-| `PRIVMSG <#channel> :<message>`   | Send a message to a channel |
-| `QUIT :<message>` | Disconnect from the server |
+| `/join <#channel>`   | Join or create a channel |
+| `/part <#channel>` | Leave a channel |
+| `/msg <nickname> :<message>`    | Send a private message to a user |
+| `/msg <#channel> :<message>`   | Send a message to a channel |
+| `/nick newnickname`   | Change your nickname |
+| `/topic <#channel>`   | View channel topic |
+| `/quit :<message>` | Disconnect from the server |
 	
 ## Channel Operator Commands
 
@@ -43,13 +45,14 @@ Commands available only to channel operators:
 
 | Command | Description |
 | ------ | ----------- |
-| `KICK <user>`  | Remove a user from the channel |
-| `INVITE <user>` | Invite a user to the channel |
-| `MODE <#channel> +i/-i`	  | Set or remove invite-only mode |
-| `MODE <#channel> +t/-t`   | Restrict topic changes to operators |
-| `MODE <#channel> +k/-k <key>` | Set or remove channel key (password) |
-| `MODE <#channel> +o/-o <user>`  | Give or remove operator privileges |
-| `MODE <#channel> +l/-l <limit>` | Set or remove the user limit |
+| `/kick <#channel> <user> :<reason>`  | Remove a user from the channel |
+| `/invite <user> <#channel> ` | Invite a user to the channel |
+| `/topic <#channel> :<new topic>`   | Set channel topic |
+| `/mode <#channel> +i/-i`	  | Set or remove invite-only mode |
+| `/mode <#channel> +t/-t`   | Restrict topic changes to operators |
+| `/mode <#channel> +k/-k <key>` | Set or remove channel key (password) |
+| `/mode <#channel> +o/-o <user>`  | Give or remove operator privileges |
+| `/mode <#channel> +l/-l <limit>` | Set or remove the user limit |
 	
 ## Bonus Features
 
@@ -57,4 +60,4 @@ File transfer support (optional extension to resemble a full IRC server)
 
 ## Contributors
 
-@finye and @greyear
+[@Finnan Solomon](https://github.com/finye) and [@Anya Zinchenko](https://github.com/greyear)
