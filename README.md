@@ -4,27 +4,41 @@
 IRC project is a custom Internet Relay Chat server written in C++.
 It implements essential features of the IRC protocol, allowing multiple clients to connect, join channels, exchange private messages, and manage channels with operator privileges.
 
-Irssi was used as the reference client for testing and verification.
+Irssi is a cross-platform IRC client that was used as the reference client for testing and verification.
 
 ## Getting Started
-Build
-```
-make
-```
 
-Run
-```
-./ircserv <port> <password>
-```
+1) Install irssi
 
-+ port — the port number where the server listens for connections
+	for MacOS:
+  
+	```
+	brew install irssi
+	```
+	for Linux:
 
-+ password — the password required for clients to connect
+	```
+	sudo apt install irssi
+	```
 
-Connect with Irssi
-```
-irssi -c <server_address> -p <port> -n <name> -w <password>
-```
+2) Build
+	```
+	make
+	```
+
+3) Run
+	```
+	./ircserv <port> <password>
+	```
+
+	+ port — the port number where the server listens for connections
+
+	+ password — the password required for clients to connect
+
+4) Connect with Irssi
+	```
+	irssi -c <server_address> -p <port> -n <name> -w <password>
+	```
 
 ## Server Commands
 
@@ -54,10 +68,11 @@ Commands available only to channel operators:
 | `/mode <#channel> +o/-o <user>`  | Give or remove operator privileges |
 | `/mode <#channel> +l/-l <limit>` | Set or remove the user limit |
 	
-## Bonus Features
+## File Transfer (DCC)
+```
+/dcc send <nickname> <file>
+```
 
-File transfer support (optional extension to resemble a full IRC server)
-
-## Contributors
+## Team
 
 [@Finnan Solomon](https://github.com/finye) and [@Anya Zinchenko](https://github.com/greyear)
