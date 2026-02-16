@@ -1,37 +1,53 @@
-NAME = ircserv
+NAME		= ircserv
+TEST_NAME	= ircserv_tests
 
-CC = c++
-FLAGS = -Wall -Wextra -Werror
+CC			= c++
+FLAGS		= -Wall -Wextra -Werror
 
 SOURCE_DIR		= sources
 SOURCE_CMD_DIR	= $(SOURCE_DIR)/commands
 INCLUDE_DIR		= includes
 INCLUDE_CMD_DIR	= $(INCLUDE_DIR)/commands
 OBJDIR			= obj
+TEST_DIR		= tests
 
-HEADERS		= Client.hpp Server.hpp Channel.hpp CmdList.hpp \
-			errors.hpp macros.hpp
-CMD_HEADERS	= ACommand.hpp PassCmd.hpp UserCmd.hpp NickCmd.hpp \
-			PingCmd.hpp QuitCmd.hpp JoinCmd.hpp KickCmd.hpp PartCmd.hpp \
-			PrivMsgCmd.hpp InviteCmd.hpp ModeCmd.hpp TopicCmd.hpp
-ALL_HEADERS	= $(addprefix $(INCLUDE_DIR)/, $(HEADERS)) \
-			$(addprefix $(INCLUDE_CMD_DIR)/, $(CMD_HEADERS))
+HEADERS			= Client.hpp Server.hpp Channel.hpp CmdList.hpp \
+				errors.hpp macros.hpp
+CMD_HEADERS		= ACommand.hpp PassCmd.hpp UserCmd.hpp NickCmd.hpp \
+				PingCmd.hpp QuitCmd.hpp JoinCmd.hpp KickCmd.hpp PartCmd.hpp \
+				PrivMsgCmd.hpp InviteCmd.hpp ModeCmd.hpp TopicCmd.hpp
+ALL_HEADERS		= $(addprefix $(INCLUDE_DIR)/, $(HEADERS)) \
+				$(addprefix $(INCLUDE_CMD_DIR)/, $(CMD_HEADERS))
 
-SOURCES		= main.cpp inputValidation.cpp \
-			Client.cpp Server.cpp Channel.cpp CmdList.cpp
-CMD_SOURCES	= ACommand.cpp PassCmd.cpp UserCmd.cpp NickCmd.cpp \
-			PingCmd.cpp QuitCmd.cpp JoinCmd.cpp KickCmd.cpp PartCmd.cpp \
-			PrivMsgCmd.cpp InviteCmd.cpp ModeCmd.cpp TopicCmd.cpp
+SOURCES			= main.cpp inputValidation.cpp \
+				Client.cpp Server.cpp Channel.cpp CmdList.cpp
+CMD_SOURCES		= ACommand.cpp PassCmd.cpp UserCmd.cpp NickCmd.cpp \
+				PingCmd.cpp QuitCmd.cpp JoinCmd.cpp KickCmd.cpp PartCmd.cpp \
+				PrivMsgCmd.cpp InviteCmd.cpp ModeCmd.cpp TopicCmd.cpp
 
-OBJECTS		= $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
-CMD_OBJECTS	= $(addprefix $(OBJDIR)/commands/, $(CMD_SOURCES:.cpp=.o))
-ALL_OBJECTS	= $(OBJECTS) $(CMD_OBJECTS)
-INCLUDES	= -I$(INCLUDE_DIR) -I$(INCLUDE_CMD_DIR)
+TEST_SOURCES	= $(TEST_DIR)/test_main.cpp \
+				$(TEST_DIR)/test_validation.cpp \
+				$(TEST_DIR)/test_channel.cpp \
+				$(TEST_DIR)/test_client.cpp \
+				$(SOURCE_DIR)/inputValidation.cpp \
+				$(SOURCE_DIR)/Channel.cpp \
+				$(SOURCE_DIR)/Client.cpp
+
+OBJECTS			= $(addprefix $(OBJDIR)/, $(SOURCES:.cpp=.o))
+CMD_OBJECTS		= $(addprefix $(OBJDIR)/commands/, $(CMD_SOURCES:.cpp=.o))
+ALL_OBJECTS		= $(OBJECTS) $(CMD_OBJECTS)
+INCLUDES		= -I$(INCLUDE_DIR) -I$(INCLUDE_CMD_DIR)
+
 
 all: $(NAME)
 
+test: $(TEST_NAME)
+
 $(NAME): $(ALL_OBJECTS)
 	$(CC) $(FLAGS) -o $(NAME) $(ALL_OBJECTS)
+
+$(TEST_NAME): $(TEST_SOURCES)
+	$(CC) $(FLAGS) $(INCLUDES) $(TEST_SOURCES) -o $(TEST_NAME)
 
 $(OBJDIR)/%.o: $(SOURCE_DIR)/%.cpp  $(ALL_HEADERS) | $(OBJDIR)
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
@@ -45,8 +61,8 @@ clean:
 	rm -rf $(OBJDIR)
 
 fclean: clean
-	rm -f $(NAME)
+	rm -f $(NAME) $(TEST_NAME)
 
 re: fclean all
 
-.PHONY: all clean fclean re
+.PHONY: all clean fclean re test

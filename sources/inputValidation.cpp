@@ -1,5 +1,9 @@
 #include <iostream>
 #include <regex>
+#include <sstream>
+#include <string>
+#include <vector>
+#include <cstdlib>
 
 bool isPortValid(char *portNumber)
 {
