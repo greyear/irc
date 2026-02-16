@@ -3,6 +3,7 @@
 void run_validation_tests();
 void run_channel_tests();
 void run_client_tests();
+void run_protocol_tests();
 
 int main()
 {
@@ -13,6 +14,7 @@ int main()
 	run_validation_tests();
 	run_channel_tests();
 	run_client_tests();
+	run_protocol_tests();
 
 	std::cout << "\n==================================" << std::endl;
 	std::cout << "  ✓ All tests passed!" << std::endl;

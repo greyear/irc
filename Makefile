@@ -1,8 +1,10 @@
 NAME		= ircserv
 TEST_NAME	= ircserv_tests
+COVERAGE_DIR	= coverage
 
 CC			= c++
 FLAGS		= -Wall -Wextra -Werror
+TEST_FLAGS	= --coverage -fprofile-arcs -ftest-coverage
 
 SOURCE_DIR		= sources
 SOURCE_CMD_DIR	= $(SOURCE_DIR)/commands
@@ -29,6 +31,7 @@ TEST_SOURCES	= $(TEST_DIR)/test_main.cpp \
 				$(TEST_DIR)/test_validation.cpp \
 				$(TEST_DIR)/test_channel.cpp \
 				$(TEST_DIR)/test_client.cpp \
+				$(TEST_DIR)/test_protocol.cpp \
 				$(SOURCE_DIR)/inputValidation.cpp \
 				$(SOURCE_DIR)/Channel.cpp \
 				$(SOURCE_DIR)/Client.cpp
@@ -47,7 +50,7 @@ $(NAME): $(ALL_OBJECTS)
 	$(CC) $(FLAGS) -o $(NAME) $(ALL_OBJECTS)
 
 $(TEST_NAME): $(TEST_SOURCES)
-	$(CC) $(FLAGS) $(INCLUDES) $(TEST_SOURCES) -o $(TEST_NAME)
+	$(CC) $(FLAGS) $(TEST_FLAGS) $(INCLUDES) $(TEST_SOURCES) -o $(TEST_NAME)
 
 $(OBJDIR)/%.o: $(SOURCE_DIR)/%.cpp  $(ALL_HEADERS) | $(OBJDIR)
 	$(CC) $(FLAGS) $(INCLUDES) -c $< -o $@
@@ -60,9 +63,18 @@ $(OBJDIR) $(OBJDIR)/commands:
 clean:
 	rm -rf $(OBJDIR)
 
+coverage: test
+	@echo "Running tests to generate coverage data..."
+	@./$(TEST_NAME)
+	@mkdir -p $(COVERAGE_DIR)
+	@lcov --directory . --capture --output-file $(COVERAGE_DIR)/coverage.info --exclude '/usr/*'
+	@genhtml $(COVERAGE_DIR)/coverage.info --output-directory $(COVERAGE_DIR)/html
+	@echo "Coverage report generated in $(COVERAGE_DIR)/html/index.html"
+
 fclean: clean
 	rm -f $(NAME) $(TEST_NAME)
+	rm -rf $(COVERAGE_DIR) *.gcda *.gcno
 
 re: fclean all
 
-.PHONY: all clean fclean re test
+.PHONY: all clean fclean re test coverage

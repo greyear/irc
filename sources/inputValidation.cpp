@@ -29,11 +29,11 @@ bool	isPassValid(const std::string& pass)
 
 std::string addCRLF(const std::string& msg)
 {
-    if (msg.size() >= 2 && msg.compare(msg.size() - 2, 2, "\r\n") == 0)
+	if (msg.size() >= 2 && msg.compare(msg.size() - 2, 2, "\r\n") == 0)
 	{
-        return msg;
-    }
-    return msg + "\r\n";
+		return msg;
+	}
+	return msg + "\r\n";
 }
 
 std::vector<std::string> splitTargets(const std::string& targets)
